@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
@@ -187,8 +187,17 @@
       text-align: center;
       text-indent: 0;
       color: var(--muted);
-      margin: 6pt 0 14pt;
+      margin: 6pt 0 6pt;
       font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .figure-note {
+      margin: 0 0 10pt;
+      color: #333333;
+      font-size: 10pt;
+      line-height: 1.35;
+      text-align: justify;
+      text-indent: 0;
     }
 
     figure {
@@ -277,6 +286,30 @@
       object-fit: contain;
       object-position: top center;
       background: #111;
+    }
+
+    .phone-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12pt;
+      align-items: start;
+      margin: 12pt 0;
+    }
+
+    .phone-grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .phone-grid figure {
+      margin: 0;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    .phone-grid .phone-shot {
+      width: auto;
+      max-width: 100%;
+      max-height: 118mm;
     }
 
     .screen-note {
@@ -572,6 +605,18 @@
         page-break-inside: avoid;
       }
 
+      .code-shot,
+      pre {
+        background: #ffffff !important;
+        color: #111111 !important;
+        border: 1px solid #808080;
+        border-left: 4px solid #111111;
+        font-size: 9pt;
+        line-height: 1.25;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
       .wide-shot {
         width: 100%;
         max-height: 110mm;
@@ -585,18 +630,44 @@
       }
 
       .evidence-grid {
-        display: block;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10pt;
       }
 
       .evidence-grid figure {
-        margin-bottom: 12pt;
+        margin-bottom: 0;
       }
 
       .evidence-grid img {
         width: 100%;
-        max-height: 105mm;
+        max-height: 68mm;
         min-height: 0;
         object-fit: contain;
+      }
+
+      .figure-note {
+        font-size: 9.5pt;
+        line-height: 1.35;
+      }
+
+      .phone-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10pt;
+      }
+
+      .phone-grid.three {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .phone-grid .phone-shot {
+        max-width: 100%;
+        max-height: 104mm;
+      }
+
+      .phone-grid.three .phone-shot {
+        max-height: 92mm;
       }
 
       a {
@@ -635,35 +706,35 @@
       <p class="center"><strong>UNIVERSIDADE PAULISTA - UNIP EaD</strong></p>
       <p class="center">Projeto Integrado Multidisciplinar</p>
       <p class="center">Curso Superior de Tecnologia em</p>
-      <p class="center"><strong>AnÃ¡lise e Desenvolvimento de Sistemas</strong></p>
+      <p class="center"><strong>Análise e Desenvolvimento de Sistemas</strong></p>
     </div>
 
     <div class="middle cover-title">
       <p class="center"><strong>MATHEUS DUARTE OLIVEIRA - 2331571</strong></p>
-      <h1>Sistema de streaming de conteÃºdo multimÃ­dia.</h1>
+      <h1>Sistema de streaming de conteúdo multimídia.</h1>
       <p class="center"><strong>PAQUETA'S STREAMING</strong></p>
     </div>
 
     <div class="bottom">
-      <p class="center">BRASÃLIA</p>
+      <p class="center">BRASÍLIA</p>
       <p class="center">2026</p>
     </div>
   </section>
 
   <section>
     <p class="center"><strong>MATHEUS DUARTE OLIVEIRA - 2331571</strong></p>
-    <h1>Sistema de streaming de conteÃºdo multimÃ­dia.</h1>
+    <h1>Sistema de streaming de conteúdo multimídia.</h1>
     <p class="center"><strong>PAQUETA'S STREAMING</strong></p>
 
     <div class="metadata-box">
-      Projeto Integrado Multidisciplinar para obtenÃ§Ã£o do tÃ­tulo de tecnÃ³logo em AnÃ¡lise e Desenvolvimento de Sistemas,
-      apresentado Ã  Universidade Paulista - UNIP EaD.
+      Projeto Integrado Multidisciplinar para obtenção do título de tecnólogo em Análise e Desenvolvimento de Sistemas,
+      apresentado à Universidade Paulista - UNIP EaD.
       <br><br>
       Orientador(a): ______________________________
     </div>
 
     <div style="position:absolute;left:3cm;right:2cm;bottom:2cm">
-      <p class="center">BRASÃLIA</p>
+      <p class="center">BRASÍLIA</p>
       <p class="center">2026</p>
     </div>
   </section>
@@ -842,7 +913,7 @@
         <tr>
           <td>Backend</td>
           <td>ASP.NET Core Web API</td>
-          <td>CriaÃ§Ã£o de endpoints RESTful para os recursos do sistema.</td>
+          <td>Criação de endpoints RESTful para os recursos do sistema.</td>
         </tr>
         <tr>
           <td>Persistencia</td>
@@ -1128,26 +1199,32 @@ Resposta:
       <figure>
         <img class="wide-shot" src="assets/screenshots/web-player-clean.png" alt="Aba player web">
         <figcaption class="caption">Figura 4 - Aba Player com area de reproducao e historico.</figcaption>
+        <p class="figure-note">Esta tela centraliza a reprodução de vídeos, músicas e podcasts. O painel lateral apresenta o histórico do usuário logado, permitindo voltar rapidamente a conteúdos assistidos e editar o item pelo painel web.</p>
       </figure>
       <figure>
         <img class="wide-shot" src="assets/screenshots/web-cine-clean.png" alt="Aba Cine web">
         <figcaption class="caption">Figura 5 - Aba Cine com filtros e vitrine de videos.</figcaption>
+        <p class="figure-note">A aba Cine funciona como vitrine de streaming: lista os vídeos cadastrados, permite filtro por criador e disponibilidade, e oferece acesso direto ao player para iniciar a reprodução.</p>
       </figure>
       <figure>
         <img class="wide-shot" src="assets/screenshots/web-conteudos-clean.png" alt="Aba conteudos web">
         <figcaption class="caption">Figura 6 - Aba Conteudos com upload e catalogo.</figcaption>
+        <p class="figure-note">Nesta página o criador ou administrador cadastra novas mídias, informa título, tipo, criador responsável e envia o arquivo para a API usando multipart/form-data.</p>
       </figure>
       <figure>
         <img class="wide-shot" src="assets/screenshots/web-playlists-clean.png" alt="Aba playlists web">
         <figcaption class="caption">Figura 7 - Aba Playlists com itens vinculados.</figcaption>
+        <p class="figure-note">A aba Playlists demonstra a relação entre usuário, playlist e conteúdos por meio da entidade ItemPlaylist, permitindo organizar o consumo dentro da plataforma.</p>
       </figure>
       <figure>
         <img class="wide-shot" src="assets/screenshots/web-criadores-clean.png" alt="Aba criadores web">
         <figcaption class="caption">Figura 8 - Aba Criadores para CRUD dos responsaveis pelos conteudos.</figcaption>
+        <p class="figure-note">A tela de Criadores mantém os responsáveis pela produção ou publicação dos conteúdos, servindo como base para associar cada mídia a seu autor.</p>
       </figure>
       <figure>
         <img class="wide-shot" src="assets/screenshots/web-usuarios-clean.png" alt="Aba usuarios web">
         <figcaption class="caption">Figura 9 - Aba Usuarios para CRUD sem exposicao de senha.</figcaption>
+        <p class="figure-note">A página de Usuários evidencia o CRUD administrativo sem exibir senha ou hash, preservando a regra de segurança definida para a API.</p>
       </figure>
     </div>
   </section>
@@ -1158,15 +1235,19 @@ Resposta:
       O aplicativo Android foi desenvolvido em Java e representa a interface do usuario final. Ele possui tela de abertura com identidade visual, fluxo de login e cadastro, catalogo de conteudos, player multimidia, playlists e perfil. A proposta atende ao requisito de permitir navegacao, consumo de conteudo e interacao dentro da plataforma.
     </p>
 
-    <figure>
-      <img class="phone-shot" src="assets/screenshots/android-opening.png" alt="Tela de abertura do aplicativo Android">
-      <figcaption class="caption">Figura 10 - Tela de abertura do aplicativo Android.</figcaption>
-    </figure>
+    <div class="phone-grid">
+      <figure>
+        <img class="phone-shot" src="assets/screenshots/android-opening.png" alt="Tela de abertura do aplicativo Android">
+        <figcaption class="caption">Figura 10 - Tela de abertura do aplicativo Android.</figcaption>
+        <p class="figure-note">A abertura apresenta a identidade visual da plataforma e prepara a experiência do usuário final antes do acesso ao catálogo.</p>
+      </figure>
 
-    <figure>
-      <img class="phone-shot" src="assets/screenshots/android-catalog.png" alt="Catalogo de conteudos do Android">
-      <figcaption class="caption">Figura 11 - Catalogo mobile com conteudos carregados da API.</figcaption>
-    </figure>
+      <figure>
+        <img class="phone-shot" src="assets/screenshots/android-catalog.png" alt="Catalogo de conteudos do Android">
+        <figcaption class="caption">Figura 11 - Catalogo mobile com conteudos carregados da API.</figcaption>
+        <p class="figure-note">O catálogo mobile consome a API para listar vídeos, músicas e podcasts disponíveis, exibindo ações de assistir e organizar em playlists.</p>
+      </figure>
+    </div>
   </section>
 
   <section>
@@ -1175,20 +1256,25 @@ Resposta:
       O player do Android foi ajustado para reproduzir videos, musicas e podcasts usando as URLs retornadas pela API. Para videos, o aplicativo utiliza um componente WebView com player HTML5, evitando falhas de compatibilidade observadas no componente nativo. O historico de consumo e separado por usuario, de modo que um login diferente nao reutiliza o historico visualizado por outro usuario na mesma maquina.
     </p>
 
-    <figure>
-      <img class="phone-shot" src="assets/screenshots/android-player.png" alt="Player Android com video e comentarios">
-      <figcaption class="caption">Figura 12 - Player do aplicativo Android com area de comentarios e interacao.</figcaption>
-    </figure>
+    <div class="phone-grid three">
+      <figure>
+        <img class="phone-shot" src="assets/screenshots/android-player.png" alt="Player Android com video e comentarios">
+        <figcaption class="caption">Figura 12 - Player do aplicativo Android com area de comentarios e interacao.</figcaption>
+        <p class="figure-note">O player utiliza a URL de stream da API e mantém comentários e curtidas como interação social do usuário final.</p>
+      </figure>
 
-    <figure>
-      <img class="phone-shot" src="assets/screenshots/android-playlists.png" alt="Tela de playlists do aplicativo Android">
-      <figcaption class="caption">Figura 13 - Tela de playlists do usuario final.</figcaption>
-    </figure>
+      <figure>
+        <img class="phone-shot" src="assets/screenshots/android-playlists.png" alt="Tela de playlists do aplicativo Android">
+        <figcaption class="caption">Figura 13 - Tela de playlists do usuario final.</figcaption>
+        <p class="figure-note">A tela de playlists mostra as coleções vinculadas ao usuário, permitindo organizar os conteúdos consumidos na plataforma.</p>
+      </figure>
 
-    <figure>
-      <img class="phone-shot" src="assets/screenshots/android-profile.png" alt="Tela de perfil do aplicativo Android">
-      <figcaption class="caption">Figura 14 - Tela de perfil do aplicativo Android.</figcaption>
-    </figure>
+      <figure>
+        <img class="phone-shot" src="assets/screenshots/android-profile.png" alt="Tela de perfil do aplicativo Android">
+        <figcaption class="caption">Figura 14 - Tela de perfil do aplicativo Android.</figcaption>
+        <p class="figure-note">O perfil resume a sessão do usuário e oferece acesso às informações essenciais da conta no aplicativo mobile.</p>
+      </figure>
+    </div>
 
     <p class="no-indent"><strong>Quadro 3 - Configuracao de acesso do Android a API local</strong></p>
     <pre class="code-shot">private static final String BASE_URL = "http://localhost:5065";
@@ -1335,7 +1421,7 @@ Resposta:
   <section>
     <h2>4. Referencias</h2>
     <p class="no-indent">
-      ASSOCIAÃ‡ÃƒO BRASILEIRA DE NORMAS TÃ‰CNICAS. <strong>NBR 14724: informacao e documentacao: trabalhos academicos: apresentacao</strong>. Rio de Janeiro: ABNT.
+      ASSOCIAÇÃO BRASILEIRA DE NORMAS TÉCNICAS. <strong>NBR 14724: informacao e documentacao: trabalhos academicos: apresentacao</strong>. Rio de Janeiro: ABNT.
     </p>
     <p class="no-indent">
       GOOGLE. <strong>Android Developers Documentation</strong>. Disponivel em: https://developer.android.com/docs. Acesso em: 28 maio 2026.
