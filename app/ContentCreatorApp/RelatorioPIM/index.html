@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
@@ -34,7 +34,7 @@
       margin: 0 auto;
       background: white;
       color: var(--ink);
-      font-family: "Times New Roman", Times, serif;
+      font-family: Arial, Helvetica, sans-serif;
       font-size: 12pt;
       line-height: 1.5;
     }
@@ -45,10 +45,13 @@
 
     section,
     .page {
+      width: 210mm;
       min-height: 297mm;
       padding: 3cm 2cm 2cm 3cm;
       page-break-after: always;
+      break-after: page;
       position: relative;
+      overflow: visible;
     }
 
     section.compact {
@@ -61,20 +64,20 @@
     h3,
     h4 {
       font-family: Arial, Helvetica, sans-serif;
-      line-height: 1.25;
+      line-height: 1.5;
       margin: 0 0 12pt;
       color: var(--ink);
       letter-spacing: 0;
     }
 
     h1 {
-      font-size: 16pt;
+      font-size: 12pt;
       text-transform: uppercase;
       text-align: center;
     }
 
     h2 {
-      font-size: 14pt;
+      font-size: 12pt;
       text-transform: uppercase;
       margin-top: 0;
     }
@@ -110,6 +113,7 @@
       flex-direction: column;
       justify-content: space-between;
       text-align: center;
+      font-weight: 700;
     }
 
     .cover .top,
@@ -119,7 +123,7 @@
     }
 
     .cover-title {
-      margin-top: 56mm;
+      margin-top: 46mm;
     }
 
     .cover strong {
@@ -131,9 +135,9 @@
       width: 86mm;
       margin-left: auto;
       margin-top: 28mm;
-      font-size: 11pt;
+      font-size: 12pt;
       text-align: justify;
-      line-height: 1.3;
+      line-height: 1.5;
     }
 
     .toc {
@@ -195,19 +199,23 @@
     img {
       display: block;
       max-width: 100%;
+      max-height: 160mm;
       margin: 0 auto;
       border: 1px solid #cfcfcf;
+      object-fit: contain;
     }
 
     .phone-shot {
-      max-width: 76mm;
-      border-radius: 10px;
+      max-width: 66mm;
+      max-height: 145mm;
+      border-radius: 0;
       border-color: #202020;
     }
 
     .wide-shot {
       width: 100%;
-      border-radius: 6px;
+      max-height: 118mm;
+      border-radius: 0;
     }
 
     .code-shot,
@@ -265,8 +273,8 @@
 
     .evidence-grid img {
       width: 100%;
-      min-height: 70mm;
-      object-fit: cover;
+      max-height: 82mm;
+      object-fit: contain;
       object-position: top center;
       background: #111;
     }
@@ -378,6 +386,17 @@
 
     .report-toolbar {
       display: none;
+    }
+
+    section[data-page-number]::before {
+      content: attr(data-page-number);
+      position: absolute;
+      top: 1.45cm;
+      right: 2cm;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 12pt;
+      line-height: 1;
+      color: var(--ink);
     }
 
     @media screen {
@@ -522,7 +541,62 @@
 
       section,
       .page {
+        width: auto;
+        min-height: 247mm;
+        padding: 0;
+        box-shadow: none;
+        border: 0;
+        overflow: visible;
+      }
+
+      body {
+        width: auto;
         min-height: auto;
+        margin: 0;
+        padding: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 12pt;
+        line-height: 1.5;
+      }
+
+      main {
+        width: auto;
+      }
+
+      p {
+        line-height: 1.5;
+      }
+
+      figure {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      .wide-shot {
+        width: 100%;
+        max-height: 110mm;
+        object-fit: contain;
+      }
+
+      .phone-shot {
+        max-width: 62mm;
+        max-height: 135mm;
+        object-fit: contain;
+      }
+
+      .evidence-grid {
+        display: block;
+      }
+
+      .evidence-grid figure {
+        margin-bottom: 12pt;
+      }
+
+      .evidence-grid img {
+        width: 100%;
+        max-height: 105mm;
+        min-height: 0;
+        object-fit: contain;
       }
 
       a {
@@ -536,6 +610,11 @@
 
       body.report-paged main > section {
         display: block !important;
+      }
+
+      section[data-page-number]::before {
+        top: -1.4cm;
+        right: 0;
       }
     }
   </style>
@@ -553,38 +632,38 @@
 <main>
   <section class="cover">
     <div class="top">
-      <p class="center"><strong>Universidade Paulista - UNIP EaD</strong></p>
+      <p class="center"><strong>UNIVERSIDADE PAULISTA - UNIP EaD</strong></p>
       <p class="center">Projeto Integrado Multidisciplinar</p>
       <p class="center">Curso Superior de Tecnologia em</p>
-      <p class="center"><strong>Analise e Desenvolvimento de Sistemas</strong></p>
+      <p class="center"><strong>AnÃ¡lise e Desenvolvimento de Sistemas</strong></p>
     </div>
 
     <div class="middle cover-title">
-      <p class="center"><strong>NOME DO ALUNO - RA</strong></p>
-      <h1>Sistema de streaming de conteudo multimidia</h1>
-      <p class="center">Plataforma web em C#, Web API ASP.NET Core e aplicativo Android Java</p>
+      <p class="center"><strong>MATHEUS DUARTE OLIVEIRA - 2331571</strong></p>
+      <h1>Sistema de streaming de conteÃºdo multimÃ­dia.</h1>
+      <p class="center"><strong>PAQUETA'S STREAMING</strong></p>
     </div>
 
     <div class="bottom">
-      <p class="center">Cidade</p>
+      <p class="center">BRASÃLIA</p>
       <p class="center">2026</p>
     </div>
   </section>
 
   <section>
-    <p class="center"><strong>NOME DO ALUNO - RA</strong></p>
-    <h1>Sistema de streaming de conteudo multimidia</h1>
-    <p class="center">Plataforma web em C#, Web API ASP.NET Core e aplicativo Android Java</p>
+    <p class="center"><strong>MATHEUS DUARTE OLIVEIRA - 2331571</strong></p>
+    <h1>Sistema de streaming de conteÃºdo multimÃ­dia.</h1>
+    <p class="center"><strong>PAQUETA'S STREAMING</strong></p>
 
     <div class="metadata-box">
-      Projeto Integrado Multidisciplinar para obtencao do titulo de tecnologo em Analise e Desenvolvimento de Sistemas,
-      apresentado a Universidade Paulista - UNIP EaD.
+      Projeto Integrado Multidisciplinar para obtenÃ§Ã£o do tÃ­tulo de tecnÃ³logo em AnÃ¡lise e Desenvolvimento de Sistemas,
+      apresentado Ã  Universidade Paulista - UNIP EaD.
       <br><br>
       Orientador(a): ______________________________
     </div>
 
     <div style="position:absolute;left:3cm;right:2cm;bottom:2cm">
-      <p class="center">Cidade</p>
+      <p class="center">BRASÃLIA</p>
       <p class="center">2026</p>
     </div>
   </section>
@@ -763,7 +842,7 @@
         <tr>
           <td>Backend</td>
           <td>ASP.NET Core Web API</td>
-          <td>Criação de endpoints RESTful para os recursos do sistema.</td>
+          <td>CriaÃ§Ã£o de endpoints RESTful para os recursos do sistema.</td>
         </tr>
         <tr>
           <td>Persistencia</td>
@@ -1212,11 +1291,11 @@ Resposta:
     </p>
 
     <div class="github-list">
-      <p><strong>Repositorio principal:</strong> https://github.com/USUARIO/REPOSITORIO</p>
-      <p><strong>API:</strong> https://github.com/USUARIO/REPOSITORIO/tree/main/backend/StreamingAPI</p>
-      <p><strong>Frontend web:</strong> https://github.com/USUARIO/REPOSITORIO/tree/main/app/ContentCreatorApp</p>
-      <p><strong>Aplicativo Android:</strong> https://github.com/USUARIO/REPOSITORIO/tree/main/app/ContentCreatorApp/AndroidUserApp</p>
-      <p><strong>Relatorio HTML:</strong> https://github.com/USUARIO/REPOSITORIO/tree/main/app/ContentCreatorApp/RelatorioPIM</p>
+      <p><strong>Repositorio principal:</strong> https://github.com/MADUOL5/Pim8Unip</p>
+      <p><strong>API:</strong> https://github.com/MADUOL5/Pim8Unip/tree/main/backend/StreamingAPI</p>
+      <p><strong>Frontend web:</strong> https://github.com/MADUOL5/Pim8Unip/tree/main/app/ContentCreatorApp</p>
+      <p><strong>Aplicativo Android:</strong> https://github.com/MADUOL5/Pim8Unip/tree/main/app/ContentCreatorApp/AndroidUserApp</p>
+      <p><strong>Relatorio HTML:</strong> https://github.com/MADUOL5/Pim8Unip/tree/main/app/ContentCreatorApp/RelatorioPIM</p>
     </div>
 
     <p class="placeholder">
@@ -1256,7 +1335,7 @@ Resposta:
   <section>
     <h2>4. Referencias</h2>
     <p class="no-indent">
-      ASSOCIAÇÃO BRASILEIRA DE NORMAS TÉCNICAS. <strong>NBR 14724: informacao e documentacao: trabalhos academicos: apresentacao</strong>. Rio de Janeiro: ABNT.
+      ASSOCIAÃ‡ÃƒO BRASILEIRA DE NORMAS TÃ‰CNICAS. <strong>NBR 14724: informacao e documentacao: trabalhos academicos: apresentacao</strong>. Rio de Janeiro: ABNT.
     </p>
     <p class="no-indent">
       GOOGLE. <strong>Android Developers Documentation</strong>. Disponivel em: https://developer.android.com/docs. Acesso em: 28 maio 2026.
@@ -1301,6 +1380,20 @@ Resposta:
       option.textContent = sectionTitle(section, index);
       jump.appendChild(option);
     });
+
+    const applyAcademicPageNumbers = () => {
+      const introIndex = sections.findIndex((section) => {
+        const heading = section.querySelector("h1, h2, h3");
+        return heading && heading.textContent.toLowerCase().includes("1. introdu");
+      });
+
+      sections.forEach((section, index) => {
+        section.removeAttribute("data-page-number");
+        if (introIndex >= 0 && index >= introIndex) {
+          section.setAttribute("data-page-number", String(index));
+        }
+      });
+    };
 
     const clamp = (value) => Math.min(Math.max(value, 0), sections.length - 1);
 
@@ -1367,8 +1460,10 @@ Resposta:
       }
     });
 
+    applyAcademicPageNumbers();
     render();
   })();
 </script>
 </body>
 </html>
+
