@@ -1,0 +1,1374 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PIM VIII - Sistema de Streaming de Conteudo Multimidia</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 3cm 2cm 2cm 3cm;
+    }
+
+    :root {
+      --ink: #161616;
+      --muted: #5a5a5a;
+      --line: #d7d7d7;
+      --soft: #f7f7f7;
+      --red: #b10f1f;
+      --dark: #111111;
+      --gold: #d7b455;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      background: #ececec;
+    }
+
+    body {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto;
+      background: white;
+      color: var(--ink);
+      font-family: "Times New Roman", Times, serif;
+      font-size: 12pt;
+      line-height: 1.5;
+    }
+
+    main {
+      padding: 0;
+    }
+
+    section,
+    .page {
+      min-height: 297mm;
+      padding: 3cm 2cm 2cm 3cm;
+      page-break-after: always;
+      position: relative;
+    }
+
+    section.compact {
+      min-height: auto;
+      page-break-after: auto;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.25;
+      margin: 0 0 12pt;
+      color: var(--ink);
+      letter-spacing: 0;
+    }
+
+    h1 {
+      font-size: 16pt;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    h2 {
+      font-size: 14pt;
+      text-transform: uppercase;
+      margin-top: 0;
+    }
+
+    h3 {
+      font-size: 12pt;
+      text-transform: uppercase;
+      margin-top: 18pt;
+    }
+
+    p {
+      text-align: justify;
+      text-indent: 1.5cm;
+      margin: 0 0 10pt;
+    }
+
+    .no-indent {
+      text-indent: 0;
+    }
+
+    .center {
+      text-align: center;
+      text-indent: 0;
+    }
+
+    .right {
+      text-align: right;
+      text-indent: 0;
+    }
+
+    .cover {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-align: center;
+    }
+
+    .cover .top,
+    .cover .middle,
+    .cover .bottom {
+      text-indent: 0;
+    }
+
+    .cover-title {
+      margin-top: 56mm;
+    }
+
+    .cover strong {
+      font-family: Arial, Helvetica, sans-serif;
+      text-transform: uppercase;
+    }
+
+    .metadata-box {
+      width: 86mm;
+      margin-left: auto;
+      margin-top: 28mm;
+      font-size: 11pt;
+      text-align: justify;
+      line-height: 1.3;
+    }
+
+    .toc {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 11.5pt;
+    }
+
+    .toc li {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 8px;
+      margin: 8pt 0;
+      align-items: baseline;
+    }
+
+    .toc .dots {
+      border-bottom: 1px dotted #555;
+      height: 0.8em;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12pt 0 14pt;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 10.5pt;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--line);
+      padding: 7px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #efefef;
+      font-weight: 700;
+    }
+
+    .caption {
+      font-size: 10pt;
+      text-align: center;
+      text-indent: 0;
+      color: var(--muted);
+      margin: 6pt 0 14pt;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    figure {
+      margin: 16pt 0 18pt;
+      page-break-inside: avoid;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+      margin: 0 auto;
+      border: 1px solid #cfcfcf;
+    }
+
+    .phone-shot {
+      max-width: 76mm;
+      border-radius: 10px;
+      border-color: #202020;
+    }
+
+    .wide-shot {
+      width: 100%;
+      border-radius: 6px;
+    }
+
+    .code-shot,
+    pre {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      border: 1px solid #2c2c2c;
+      border-left: 6px solid var(--red);
+      background: #111;
+      color: #f3f3f3;
+      padding: 12px 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 9.5pt;
+      line-height: 1.35;
+      margin: 12pt 0 6pt;
+      page-break-inside: avoid;
+    }
+
+    .placeholder {
+      border: 1px dashed #999;
+      background: #fbfbfb;
+      padding: 14pt;
+      margin: 12pt 0;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 10.5pt;
+      color: #333;
+      text-indent: 0;
+    }
+
+    .github-list {
+      border-left: 4px solid var(--gold);
+      background: #fafafa;
+      padding: 10pt 12pt;
+      margin: 12pt 0;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 10.5pt;
+    }
+
+    .github-list p {
+      text-indent: 0;
+      margin: 4pt 0;
+      text-align: left;
+    }
+
+    .evidence-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12pt;
+      margin: 14pt 0;
+    }
+
+    .evidence-grid figure {
+      margin: 0;
+    }
+
+    .evidence-grid img {
+      width: 100%;
+      min-height: 70mm;
+      object-fit: cover;
+      object-position: top center;
+      background: #111;
+    }
+
+    .screen-note {
+      border-left: 5px solid var(--red);
+      background: linear-gradient(90deg, #fff7f7, #ffffff);
+      padding: 10pt 12pt;
+      margin: 12pt 0;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 10.5pt;
+      text-indent: 0;
+    }
+
+    .rule-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10pt;
+      margin: 12pt 0;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 10pt;
+    }
+
+    .rule-list article {
+      border: 1px solid #dedede;
+      border-top: 4px solid var(--red);
+      background: #fbfbfb;
+      padding: 10pt;
+      page-break-inside: avoid;
+    }
+
+    .rule-list h4 {
+      margin: 0 0 5pt;
+      font-size: 10.5pt;
+      color: var(--red);
+    }
+
+    .route {
+      display: inline-block;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 9pt;
+      padding: 1px 5px;
+      border-radius: 3px;
+      background: #eeeeee;
+      color: #111111;
+      margin: 1px 0;
+    }
+
+    .method {
+      display: inline-block;
+      min-width: 42px;
+      padding: 1px 5px;
+      border-radius: 3px;
+      color: #ffffff;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 8.5pt;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .get { background: #2374d8; }
+    .post { background: #159957; }
+    .put { background: #d37800; }
+    .delete { background: #c72534; }
+    .head { background: #555555; }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: #f2e5b7;
+      color: #4b3610;
+      font-size: 9pt;
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: 700;
+    }
+
+    .diagram {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10pt;
+      margin: 12pt 0;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 10pt;
+    }
+
+    .entity {
+      border: 1px solid #bdbdbd;
+      background: #fbfbfb;
+      padding: 10pt;
+      border-radius: 4px;
+      page-break-inside: avoid;
+    }
+
+    .entity h4 {
+      margin: 0 0 6pt;
+      color: var(--red);
+      font-size: 11pt;
+    }
+
+    ul {
+      margin-top: 4pt;
+      padding-left: 20pt;
+    }
+
+    li {
+      margin-bottom: 4pt;
+    }
+
+    .report-toolbar {
+      display: none;
+    }
+
+    @media screen {
+      html {
+        background:
+          radial-gradient(circle at 15% 0%, rgba(177, 15, 31, 0.22), transparent 32%),
+          linear-gradient(135deg, #070707 0%, #171010 48%, #050505 100%);
+      }
+
+      body {
+        width: auto;
+        min-height: 100vh;
+        margin: 0;
+        padding: 92px 18px 48px;
+        background: transparent;
+      }
+
+      main {
+        width: min(210mm, calc(100vw - 36px));
+        margin: 0 auto;
+      }
+
+      section,
+      .page {
+        min-height: min(297mm, calc(100vh - 128px));
+        margin: 0 auto;
+        background: #ffffff;
+        box-shadow: 0 22px 80px rgba(0, 0, 0, 0.48);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        page-break-after: auto;
+      }
+
+      body.report-paged main > section:not(.is-visible) {
+        display: none;
+      }
+
+      .report-toolbar {
+        position: fixed;
+        z-index: 20;
+        top: 16px;
+        left: 50%;
+        display: grid;
+        grid-template-columns: auto auto 1fr auto auto auto;
+        gap: 10px;
+        align-items: center;
+        width: min(1120px, calc(100vw - 28px));
+        padding: 12px;
+        transform: translateX(-50%);
+        border: 1px solid rgba(215, 180, 85, 0.36);
+        border-radius: 8px;
+        background:
+          linear-gradient(90deg, rgba(177, 15, 31, 0.22), rgba(14, 14, 14, 0.92)),
+          #101010;
+        box-shadow: 0 18px 48px rgba(0, 0, 0, 0.42);
+        color: #ffffff;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      .report-toolbar strong {
+        color: var(--gold);
+        font-size: 10pt;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      .report-toolbar button,
+      .report-toolbar select {
+        min-height: 34px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 6px;
+        background: #19191f;
+        color: #ffffff;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 10pt;
+      }
+
+      .report-toolbar button {
+        padding: 0 12px;
+        cursor: pointer;
+        transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+      }
+
+      .report-toolbar button:hover {
+        transform: translateY(-1px);
+        border-color: var(--gold);
+        background: #2b1115;
+      }
+
+      .report-toolbar button:disabled {
+        cursor: not-allowed;
+        opacity: 0.45;
+        transform: none;
+      }
+
+      .report-toolbar select {
+        width: 100%;
+        min-width: 0;
+        padding: 0 9px;
+      }
+
+      .report-progress {
+        height: 4px;
+        grid-column: 1 / -1;
+        overflow: hidden;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.12);
+      }
+
+      .report-progress span {
+        display: block;
+        width: 0;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, var(--red), var(--gold));
+        transition: width 220ms ease;
+      }
+
+      @media (max-width: 780px) {
+        body {
+          padding-top: 154px;
+        }
+
+        .report-toolbar {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .report-toolbar strong,
+        .report-toolbar select,
+        .report-progress {
+          grid-column: 1 / -1;
+        }
+      }
+    }
+
+    @media print {
+      html,
+      body {
+        background: white;
+        width: auto;
+        min-height: auto;
+      }
+
+      section,
+      .page {
+        min-height: auto;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .report-toolbar {
+        display: none !important;
+      }
+
+      body.report-paged main > section {
+        display: block !important;
+      }
+    }
+  </style>
+</head>
+<body>
+<nav class="report-toolbar" aria-label="Paginacao do relatorio">
+  <button type="button" id="report-prev">Anterior</button>
+  <button type="button" id="report-next">Proxima</button>
+  <select id="report-jump" aria-label="Ir para pagina"></select>
+  <strong id="report-count">Pagina 1 de 1</strong>
+  <button type="button" id="report-all">Ver tudo</button>
+  <button type="button" id="report-print">Exportar PDF</button>
+  <div class="report-progress" aria-hidden="true"><span id="report-progress-bar"></span></div>
+</nav>
+<main>
+  <section class="cover">
+    <div class="top">
+      <p class="center"><strong>Universidade Paulista - UNIP EaD</strong></p>
+      <p class="center">Projeto Integrado Multidisciplinar</p>
+      <p class="center">Curso Superior de Tecnologia em</p>
+      <p class="center"><strong>Analise e Desenvolvimento de Sistemas</strong></p>
+    </div>
+
+    <div class="middle cover-title">
+      <p class="center"><strong>NOME DO ALUNO - RA</strong></p>
+      <h1>Sistema de streaming de conteudo multimidia</h1>
+      <p class="center">Plataforma web em C#, Web API ASP.NET Core e aplicativo Android Java</p>
+    </div>
+
+    <div class="bottom">
+      <p class="center">Cidade</p>
+      <p class="center">2026</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="center"><strong>NOME DO ALUNO - RA</strong></p>
+    <h1>Sistema de streaming de conteudo multimidia</h1>
+    <p class="center">Plataforma web em C#, Web API ASP.NET Core e aplicativo Android Java</p>
+
+    <div class="metadata-box">
+      Projeto Integrado Multidisciplinar para obtencao do titulo de tecnologo em Analise e Desenvolvimento de Sistemas,
+      apresentado a Universidade Paulista - UNIP EaD.
+      <br><br>
+      Orientador(a): ______________________________
+    </div>
+
+    <div style="position:absolute;left:3cm;right:2cm;bottom:2cm">
+      <p class="center">Cidade</p>
+      <p class="center">2026</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Resumo</h2>
+    <p>
+      Este trabalho apresenta o desenvolvimento de um sistema de streaming de conteudo multimidia, composto por uma Web API em ASP.NET Core, um painel web em C# para gerenciamento e um aplicativo Android desenvolvido em Java para o usuario final. O sistema foi estruturado para permitir cadastro e autenticacao de usuarios com token JWT, cadastro de criadores, upload de videos, musicas e podcasts, organizacao de playlists e reproducao de conteudos por meio de endpoints preparados para streaming. A proposta atende ao tema do PIM VIII ao integrar conceitos de Programacao Orientada a Objetos II, Desenvolvimento de Software para a Internet e Topicos Especiais de Programacao Orientada a Objetos. No backend, foram implementadas entidades, DTOs, controllers, repositorios e persistencia com Entity Framework Core e SQLite. No frontend web, foi desenvolvido um painel visual para operacoes administrativas e de criadores de conteudo. No aplicativo Android, foram implementadas telas de login, catalogo, player, playlists e interacoes sociais por comentarios e curtidas, preservando a experiencia de consumo do usuario final. O projeto tambem contempla evidencias visuais, organizacao academica conforme o manual do PIM e espacos destinados a referencias do repositorio GitHub.
+    </p>
+    <p class="no-indent"><strong>Palavras-chave:</strong> Streaming. ASP.NET Core. Android Java. Web API. JWT.</p>
+  </section>
+
+  <section>
+    <h2>Abstract</h2>
+    <p>
+      This work presents the development of a multimedia streaming system composed of an ASP.NET Core Web API, a C# web management panel, and an Android application developed in Java for end users. The system was designed to support user registration and JWT authentication, creator management, upload of videos, songs and podcasts, playlist organization, and media playback through streaming-oriented endpoints. The proposal addresses the PIM VIII theme by integrating concepts from Object-Oriented Programming II, Internet Software Development, and Special Topics in Object-Oriented Programming. In the backend, entities, DTOs, controllers, repositories, and persistence with Entity Framework Core and SQLite were implemented. The web frontend provides a visual panel for administrative and creator operations. The Android application provides login, catalog, player, playlists, and social interactions through comments and likes, preserving the final user's media consumption experience. The project also includes visual evidence, academic organization according to the PIM manual, and placeholders for GitHub repository references.
+    </p>
+    <p class="no-indent"><strong>Keywords:</strong> Streaming. ASP.NET Core. Android Java. Web API. JWT.</p>
+  </section>
+
+  <section>
+    <h2>Sumario</h2>
+    <ol class="toc">
+      <li><span>1. Introducao</span><span class="dots"></span><span>6</span></li>
+      <li><span>2. Desenvolvimento</span><span class="dots"></span><span>7</span></li>
+      <li><span>2.1 Contextualizacao do sistema</span><span class="dots"></span><span>7</span></li>
+      <li><span>2.2 Tecnologias utilizadas</span><span class="dots"></span><span>8</span></li>
+      <li><span>2.3 Modelagem e classes</span><span class="dots"></span><span>9</span></li>
+      <li><span>2.4 Web API ASP.NET Core</span><span class="dots"></span><span>11</span></li>
+      <li><span>2.5 Frontend web em C#</span><span class="dots"></span><span>13</span></li>
+      <li><span>2.5.1 Evidencias das abas do painel web</span><span class="dots"></span><span>14</span></li>
+      <li><span>2.6 Aplicativo Android Java</span><span class="dots"></span><span>15</span></li>
+      <li><span>2.7 Banco de dados e carga inicial</span><span class="dots"></span><span>18</span></li>
+      <li><span>2.8 Evidencias e repositorio</span><span class="dots"></span><span>19</span></li>
+      <li><span>3. Conclusao</span><span class="dots"></span><span>21</span></li>
+      <li><span>4. Referencias</span><span class="dots"></span><span>22</span></li>
+    </ol>
+    <p class="placeholder">
+      Observacao: a paginacao final deve ser conferida apos exportar o HTML para PDF, pois o navegador pode ajustar quebras de pagina conforme escala de impressao.
+    </p>
+  </section>
+
+  <section>
+    <h2>Itens obrigatorios atendidos</h2>
+    <p>
+      Conforme o manual do PIM VIII, este documento contempla os elementos academicos obrigatorios e as entregas tecnicas solicitadas para o tema de sistema de streaming de conteudo multimidia.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Exigencia do manual</th>
+          <th>Onde aparece neste documento</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Capa, Resumo, Abstract e Sumario</td>
+          <td>Elementos pre-textuais do relatorio</td>
+          <td>Atendido</td>
+        </tr>
+        <tr>
+          <td>Introducao, Desenvolvimento e Conclusao</td>
+          <td>Secoes 1, 2 e 3</td>
+          <td>Atendido</td>
+        </tr>
+        <tr>
+          <td>Referencias em padrao academico</td>
+          <td>Secao 4</td>
+          <td>Atendido</td>
+        </tr>
+        <tr>
+          <td>Classes de entidades do diagrama</td>
+          <td>Secao 2.3</td>
+          <td>Atendido</td>
+        </tr>
+        <tr>
+          <td>Web API em C# com CRUD, autenticacao e autorizacao</td>
+          <td>Secao 2.4</td>
+          <td>Atendido</td>
+        </tr>
+        <tr>
+          <td>Documentacao Swagger</td>
+          <td>Figura 1 e tabela de endpoints</td>
+          <td>Atendido</td>
+        </tr>
+        <tr>
+          <td>Interface grafica para criadores/gestao</td>
+          <td>Secoes 2.5 e 2.5.1</td>
+          <td>Atendido no painel web em C#</td>
+        </tr>
+        <tr>
+          <td>Aplicativo Android Java para usuario final</td>
+          <td>Secoes 2.6 e 2.6.1</td>
+          <td>Atendido</td>
+        </tr>
+        <tr>
+          <td>Capturas de tela das interfaces</td>
+          <td>Figuras 1 a 14</td>
+          <td>Atendido</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>1. Introducao</h2>
+    <p>
+      O presente Projeto Integrado Multidisciplinar tem como objetivo documentar e demonstrar a construcao de um sistema de streaming de conteudo multimidia, alinhado ao tema proposto para o PIM VIII. A solucao desenvolvida contempla recursos para disponibilizacao e consumo de videos, musicas e podcasts em uma plataforma digital, permitindo que criadores cadastrem conteudos e que usuarios finais naveguem, reproduzam e organizem midias em playlists.
+    </p>
+    <p>
+      A aplicacao foi dividida em tres partes principais. A primeira parte e uma Web API em ASP.NET Core, responsavel por expor os endpoints de autenticacao, usuarios, criadores, conteudos, playlists e itens de playlist. A segunda parte e um painel web desenvolvido em C#, voltado ao gerenciamento do sistema e as operacoes relacionadas aos criadores de conteudo. A terceira parte e um aplicativo Android em Java, voltado ao usuario final, com interface de catalogo, player multimidia, playlists, historico e interacoes.
+    </p>
+    <p>
+      A metodologia adotada consistiu em analisar os requisitos do manual, modelar as entidades do dominio, implementar a persistencia de dados, criar endpoints RESTful protegidos por token JWT e desenvolver interfaces capazes de consumir a API de forma realista. Tambem foram geradas evidencias por meio de capturas de tela das principais funcionalidades, alem de uma carga inicial no banco de dados utilizando arquivos de midia existentes na pasta do projeto.
+    </p>
+  </section>
+
+  <section>
+    <h2>2. Desenvolvimento</h2>
+    <h3>2.1 Contextualizacao do sistema</h3>
+    <p>
+      O sistema proposto simula uma plataforma de streaming de conteudo multimidia, em que criadores podem publicar videos, musicas e podcasts, enquanto usuarios podem consumir esses materiais em um ambiente visual inspirado em servicos modernos de streaming. A identidade visual utilizada no prototipo possui tema rubro-negro, com cores escuras, destaques em vermelho e elementos de destaque que reforcam a proposta de uma plataforma de entretenimento.
+    </p>
+    <p>
+      A solucao busca atender as funcionalidades-chave descritas no manual: gerenciamento de usuarios, controle de autenticacao e autorizacao, cadastro de criadores, cadastro e upload de conteudos, gestao de playlists e consumo de conteudo por aplicativo mobile. A API centraliza as regras de acesso aos dados e as interfaces web e Android funcionam como clientes independentes que consomem os mesmos endpoints.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Modulo</th>
+          <th>Objetivo</th>
+          <th>Tecnologia</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>StreamingAPI</td>
+          <td>Expor autenticao, CRUDs, upload e streaming de midias.</td>
+          <td>ASP.NET Core, C#, EF Core, SQLite, JWT</td>
+        </tr>
+        <tr>
+          <td>ContentCreatorApp</td>
+          <td>Gerenciar usuarios, criadores, conteudos e playlists em ambiente web.</td>
+          <td>C#, Blazor/Web</td>
+        </tr>
+        <tr>
+          <td>AndroidUserApp</td>
+          <td>Permitir navegacao, consumo de conteudo, playlists e interacao do usuario final.</td>
+          <td>Java, Android SDK</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h3>2.2 Tecnologias utilizadas</h3>
+    <p>
+      A API foi desenvolvida em ASP.NET Core com Entity Framework Core para persistencia relacional em SQLite. A autenticacao utiliza JWT, permitindo que o usuario faca cadastro ou login e receba um token para acessar rotas protegidas. As senhas sao armazenadas por meio de hash, evitando a gravacao de senha em texto puro.
+    </p>
+    <p>
+      O painel web utiliza C# e comunica-se com a API por requisicoes HTTP. Sua funcao e apoiar a gestao dos dados do sistema, incluindo cadastro de criadores, upload de conteudo, edicao de registros e organizacao das playlists. O aplicativo Android foi implementado em Java, com interface voltada ao usuario final, contendo fluxo de abertura, autenticacao, catalogo, player e interacao por comentarios.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Area</th>
+          <th>Ferramenta/tecnologia</th>
+          <th>Aplicacao no projeto</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Backend</td>
+          <td>ASP.NET Core Web API</td>
+          <td>Criação de endpoints RESTful para os recursos do sistema.</td>
+        </tr>
+        <tr>
+          <td>Persistencia</td>
+          <td>Entity Framework Core e SQLite</td>
+          <td>Mapeamento das entidades e gravacao local dos dados.</td>
+        </tr>
+        <tr>
+          <td>Seguranca</td>
+          <td>JWT e PasswordHasher</td>
+          <td>Autenticacao por token e armazenamento seguro de senhas.</td>
+        </tr>
+        <tr>
+          <td>Web</td>
+          <td>C# / Blazor</td>
+          <td>Painel para criadores e administradores.</td>
+        </tr>
+        <tr>
+          <td>Mobile</td>
+          <td>Java / Android SDK</td>
+          <td>Aplicativo para navegacao e consumo de conteudo.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h3>2.3 Modelagem e classes</h3>
+    <p>
+      A modelagem do sistema foi baseada nas entidades indicadas no manual: Usuario, Playlist, Conteudo, Criador e ItemPlaylist. O Usuario representa a pessoa cadastrada na plataforma. A Playlist representa uma colecao de conteudos pertencente a um usuario. O Conteudo representa uma midia publicada, como video, musica ou podcast. O Criador representa o responsavel pela producao ou publicacao do conteudo. O ItemPlaylist e a tabela associativa que conecta playlists e conteudos.
+    </p>
+
+    <div class="diagram">
+      <div class="entity">
+        <h4>Usuario</h4>
+        <ul>
+          <li>Id</li>
+          <li>Nome</li>
+          <li>Email</li>
+          <li>SenhaHash</li>
+          <li>Playlists</li>
+        </ul>
+      </div>
+      <div class="entity">
+        <h4>Playlist</h4>
+        <ul>
+          <li>Id</li>
+          <li>Nome</li>
+          <li>UsuarioId</li>
+          <li>Usuario</li>
+          <li>Items</li>
+        </ul>
+      </div>
+      <div class="entity">
+        <h4>Conteudo</h4>
+        <ul>
+          <li>Id</li>
+          <li>Titulo</li>
+          <li>Tipo</li>
+          <li>CriadorId</li>
+          <li>ArquivoMidia</li>
+        </ul>
+      </div>
+      <div class="entity">
+        <h4>Criador</h4>
+        <ul>
+          <li>Id</li>
+          <li>Nome</li>
+          <li>Conteudos</li>
+        </ul>
+      </div>
+      <div class="entity">
+        <h4>ItemPlaylist</h4>
+        <ul>
+          <li>Id</li>
+          <li>PlaylistId</li>
+          <li>ConteudoId</li>
+          <li>Conteudo</li>
+        </ul>
+      </div>
+      <div class="entity">
+        <h4>PlaylistRepository</h4>
+        <ul>
+          <li>Listar playlists</li>
+          <li>Buscar por usuario</li>
+          <li>Criar, atualizar e remover</li>
+          <li>Adicionar e remover itens</li>
+        </ul>
+      </div>
+    </div>
+
+    <p>
+      Essa estrutura permite que cada usuario possua diversas playlists e que cada playlist contenha diversos conteudos. O relacionamento entre Playlist e Conteudo ocorre por meio de ItemPlaylist, preservando a organizacao relacional proposta no diagrama do manual.
+    </p>
+  </section>
+
+  <section>
+    <h3>2.4 Web API ASP.NET Core</h3>
+    <p>
+      A Web API foi construida para concentrar o acesso aos dados e oferecer uma camada de comunicacao entre o banco de dados e as interfaces cliente. O cadastro e o login retornam um token JWT; as demais rotas de API utilizam esse token no cabecalho Authorization. A API tambem disponibiliza documentacao por Swagger e um guia de contrato para frontend, permitindo que outro desenvolvedor entenda rapidamente como consumir os recursos.
+    </p>
+
+    <figure>
+      <img class="wide-shot" src="assets/screenshots/swagger-overview.png" alt="Swagger da API com endpoints">
+      <figcaption class="caption">Figura 1 - Swagger da StreamingAPI com grupos de endpoints e botao Authorize.</figcaption>
+    </figure>
+
+    <figure>
+      <img class="wide-shot" src="assets/screenshots/api-frontend-docs.png" alt="Guia frontend da API">
+      <figcaption class="caption">Figura 2 - Guia web da API para orientar o consumo pelo frontend.</figcaption>
+    </figure>
+
+    <p class="screen-note">
+      Todas as rotas de autenticacao sao publicas. As demais rotas iniciadas por <span class="route">/api/*</span> exigem o cabecalho <span class="route">Authorization: Bearer &lt;token&gt;</span>. A excecao fica para arquivos em <span class="route">/Media/*</span> e para o stream de video, que precisam ser acessiveis pelo player.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Recurso</th>
+          <th>Metodo e rota</th>
+          <th>Regra / uso no sistema</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Auth</td>
+          <td><span class="method post">POST</span> <span class="route">/api/auth/cadastro</span><br><span class="method post">POST</span> <span class="route">/api/auth/login</span></td>
+          <td>Rotas publicas. Validam nome, e-mail e senha, retornando usuario, token JWT e data de expiracao.</td>
+        </tr>
+        <tr>
+          <td>Usuarios</td>
+          <td><span class="method get">GET</span> <span class="route">/api/usuarios</span><br><span class="method get">GET</span> <span class="route">/api/usuarios/{id}</span><br><span class="method post">POST</span> <span class="route">/api/usuarios</span><br><span class="method put">PUT</span> <span class="route">/api/usuarios/{id}</span><br><span class="method delete">DELETE</span> <span class="route">/api/usuarios/{id}</span></td>
+          <td>CRUD protegido por token. Nao retorna senha nem hash. A criacao exige nome, e-mail e senha.</td>
+        </tr>
+        <tr>
+          <td>Criadores</td>
+          <td><span class="method get">GET</span> <span class="route">/api/criadores</span><br><span class="method get">GET</span> <span class="route">/api/criadores/{id}</span><br><span class="method post">POST</span> <span class="route">/api/criadores</span><br><span class="method put">PUT</span> <span class="route">/api/criadores/{id}</span><br><span class="method delete">DELETE</span> <span class="route">/api/criadores/{id}</span></td>
+          <td>CRUD protegido por token. Fornece os responsaveis associados aos conteudos cadastrados.</td>
+        </tr>
+        <tr>
+          <td>Conteudos</td>
+          <td><span class="method get">GET</span> <span class="route">/api/conteudos</span><br><span class="method get">GET</span> <span class="route">/api/conteudos/{id}</span><br><span class="method post">POST</span> <span class="route">/api/conteudos</span><br><span class="method put">PUT</span> <span class="route">/api/conteudos/{id}</span><br><span class="method delete">DELETE</span> <span class="route">/api/conteudos/{id}</span><br><span class="method get">GET</span> <span class="route">/api/conteudos/{id}/reproducao</span><br><span class="method get">GET</span> <span class="route">/api/conteudos/{id}/stream</span><br><span class="method head">HEAD</span> <span class="route">/api/conteudos/{id}/stream</span></td>
+          <td>CRUD protegido por token. O cadastro usa multipart/form-data para upload. Reproducao valida arquivo, tipo, tamanho e disponibilidade. Stream atende o player com suporte a Range.</td>
+        </tr>
+        <tr>
+          <td>Playlists</td>
+          <td><span class="method get">GET</span> <span class="route">/api/playlists</span><br><span class="method get">GET</span> <span class="route">/api/playlists/{id}</span><br><span class="method get">GET</span> <span class="route">/api/playlists/usuario/{usuarioId}</span><br><span class="method post">POST</span> <span class="route">/api/playlists</span><br><span class="method put">PUT</span> <span class="route">/api/playlists/{id}</span><br><span class="method delete">DELETE</span> <span class="route">/api/playlists/{id}</span><br><span class="method post">POST</span> <span class="route">/api/playlists/{playlistId}/itens</span><br><span class="method delete">DELETE</span> <span class="route">/api/playlists/itens/{itemId}</span></td>
+          <td>CRUD protegido por token. Relaciona usuario, playlist e conteudos por meio da entidade ItemPlaylist.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="rule-list">
+      <article>
+        <h4>Autenticacao</h4>
+        <span class="tag">Obrigatorio</span>
+        <p class="no-indent">Apos cadastro ou login, o frontend salva o token e envia <span class="route">Authorization: Bearer</span> nas rotas protegidas. Em caso de <span class="route">401</span>, a sessao local deve ser limpa.</p>
+      </article>
+      <article>
+        <h4>Validacao</h4>
+        <span class="tag">Obrigatorio</span>
+        <p class="no-indent">Campos obrigatorios, relacionamentos inexistentes e dados invalidos retornam <span class="route">400</span>. E-mail repetido retorna <span class="route">409</span>.</p>
+      </article>
+      <article>
+        <h4>Upload</h4>
+        <span class="tag">Conteudo</span>
+        <p class="no-indent">O endpoint de conteudos recebe <span class="route">titulo</span>, <span class="route">tipo</span>, <span class="route">criadorId</span> e arquivo opcional. Com FormData, o navegador define o boundary do multipart.</p>
+      </article>
+      <article>
+        <h4>Streaming</h4>
+        <span class="tag">Player</span>
+        <p class="no-indent">O endpoint <span class="route">/stream</span> pode ser usado direto no elemento de video e aceita Range, recurso necessario para avancar ou voltar a reproducao.</p>
+      </article>
+    </div>
+
+    <p class="no-indent"><strong>Quadro 1 - Trecho representativo do fluxo de autenticacao</strong></p>
+    <pre class="code-shot">POST /api/auth/login
+{
+  "email": "admin@paquetastreaming.com",
+  "senha": "Senha123"
+}
+
+Resposta:
+{
+  "usuario": { "id": 1, "nome": "Administrador Rubro Negro" },
+  "token": "eyJhbGciOi...",
+  "expiraEm": "2026-05-28T..."
+}</pre>
+
+    <p>
+      A rota de upload de conteudo recebe dados em multipart/form-data. Quando o arquivo e um video, a API disponibiliza uma URL de stream com suporte a Range, permitindo que o player avance e retroceda o video sem precisar baixar o arquivo inteiro.
+    </p>
+  </section>
+
+  <section>
+    <h3>2.5 Frontend web em C#</h3>
+    <p>
+      O frontend web foi desenvolvido como painel para gerenciamento da plataforma. Ele permite autenticar usuarios, visualizar dados do sistema, criar criadores, cadastrar conteudos com upload, organizar playlists e acessar as funcionalidades administrativas. A interface utiliza tema escuro, elementos em vermelho e dourado e componentes voltados a operacao do sistema.
+    </p>
+
+    <figure>
+      <img class="wide-shot" src="assets/screenshots/web-login-clean.png" alt="Tela de login do frontend web">
+      <figcaption class="caption">Figura 3 - Tela de login e cadastro do painel web.</figcaption>
+    </figure>
+
+    <p class="screen-note">
+      O print com erro de validacao foi substituido por capturas limpas. A mensagem de erro 400 exibida anteriormente ocorreu quando o formulario foi enviado sem e-mail e senha validos; isso e esperado pela API, mas nao deve aparecer como evidencia principal do sistema funcionando.
+    </p>
+
+    <p>
+      O painel web funciona como interface de apoio para criadores e administradores, sendo adequado para operacoes de cadastro, upload e organizacao do acervo. Por estar integrado a mesma API utilizada pelo aplicativo Android, as informacoes cadastradas no painel podem ser consumidas no aplicativo mobile.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Aba</th>
+          <th>Funcao</th>
+          <th>Endpoints consumidos</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Player</td>
+          <td>Reproduz video, musica ou podcast e mostra historico local vinculado ao usuario logado.</td>
+          <td><span class="route">GET /api/conteudos/{id}/reproducao</span><br><span class="route">GET /api/conteudos/{id}/stream</span></td>
+        </tr>
+        <tr>
+          <td>Cine</td>
+          <td>Lista videos em formato de vitrine, com filtros por texto, criador e disponibilidade.</td>
+          <td><span class="route">GET /api/conteudos</span><br><span class="route">GET /api/criadores</span></td>
+        </tr>
+        <tr>
+          <td>Conteudos</td>
+          <td>Cria conteudos com upload, edita metadados e remove registros.</td>
+          <td><span class="route">POST /api/conteudos</span><br><span class="route">PUT /api/conteudos/{id}</span><br><span class="route">DELETE /api/conteudos/{id}</span></td>
+        </tr>
+        <tr>
+          <td>Playlists</td>
+          <td>Cria playlists, edita dados e adiciona conteudos por ItemPlaylist.</td>
+          <td><span class="route">GET /api/playlists</span><br><span class="route">POST /api/playlists</span><br><span class="route">POST /api/playlists/{id}/itens</span></td>
+        </tr>
+        <tr>
+          <td>Criadores</td>
+          <td>Cadastro, edicao e exclusao dos criadores responsaveis pelos conteudos.</td>
+          <td><span class="route">GET/POST/PUT/DELETE /api/criadores</span></td>
+        </tr>
+        <tr>
+          <td>Usuarios</td>
+          <td>Gerenciamento dos usuarios cadastrados, sem expor senha ou hash.</td>
+          <td><span class="route">GET/POST/PUT/DELETE /api/usuarios</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p class="no-indent"><strong>Quadro 2 - Contrato de requisicao utilizado pelo frontend</strong></p>
+    <pre class="code-shot">async function apiFetch(path, options = {}) {
+  const token = localStorage.getItem("token");
+  const isFormData = options.body instanceof FormData;
+
+  const headers = {
+    ...(isFormData ? {} : { "Content-Type": "application/json" }),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...options.headers
+  };
+
+  const response = await fetch(`${API_URL}${path}`, { ...options, headers });
+  if (response.status === 401) {
+    localStorage.removeItem("token");
+    throw new Error("Sessao expirada.");
+  }
+  return response.status === 204 ? null : response.json();
+}</pre>
+  </section>
+
+  <section>
+    <h3>2.5.1 Evidencias das abas do painel web</h3>
+    <p>
+      As figuras a seguir demonstram as principais abas do painel web apos autenticacao. Todas consomem a mesma API e compartilham o estado da sessao do usuario autenticado.
+    </p>
+
+    <div class="evidence-grid">
+      <figure>
+        <img class="wide-shot" src="assets/screenshots/web-player-clean.png" alt="Aba player web">
+        <figcaption class="caption">Figura 4 - Aba Player com area de reproducao e historico.</figcaption>
+      </figure>
+      <figure>
+        <img class="wide-shot" src="assets/screenshots/web-cine-clean.png" alt="Aba Cine web">
+        <figcaption class="caption">Figura 5 - Aba Cine com filtros e vitrine de videos.</figcaption>
+      </figure>
+      <figure>
+        <img class="wide-shot" src="assets/screenshots/web-conteudos-clean.png" alt="Aba conteudos web">
+        <figcaption class="caption">Figura 6 - Aba Conteudos com upload e catalogo.</figcaption>
+      </figure>
+      <figure>
+        <img class="wide-shot" src="assets/screenshots/web-playlists-clean.png" alt="Aba playlists web">
+        <figcaption class="caption">Figura 7 - Aba Playlists com itens vinculados.</figcaption>
+      </figure>
+      <figure>
+        <img class="wide-shot" src="assets/screenshots/web-criadores-clean.png" alt="Aba criadores web">
+        <figcaption class="caption">Figura 8 - Aba Criadores para CRUD dos responsaveis pelos conteudos.</figcaption>
+      </figure>
+      <figure>
+        <img class="wide-shot" src="assets/screenshots/web-usuarios-clean.png" alt="Aba usuarios web">
+        <figcaption class="caption">Figura 9 - Aba Usuarios para CRUD sem exposicao de senha.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section>
+    <h3>2.6 Aplicativo Android Java</h3>
+    <p>
+      O aplicativo Android foi desenvolvido em Java e representa a interface do usuario final. Ele possui tela de abertura com identidade visual, fluxo de login e cadastro, catalogo de conteudos, player multimidia, playlists e perfil. A proposta atende ao requisito de permitir navegacao, consumo de conteudo e interacao dentro da plataforma.
+    </p>
+
+    <figure>
+      <img class="phone-shot" src="assets/screenshots/android-opening.png" alt="Tela de abertura do aplicativo Android">
+      <figcaption class="caption">Figura 10 - Tela de abertura do aplicativo Android.</figcaption>
+    </figure>
+
+    <figure>
+      <img class="phone-shot" src="assets/screenshots/android-catalog.png" alt="Catalogo de conteudos do Android">
+      <figcaption class="caption">Figura 11 - Catalogo mobile com conteudos carregados da API.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <h3>2.6.1 Player, playlists e interacao</h3>
+    <p>
+      O player do Android foi ajustado para reproduzir videos, musicas e podcasts usando as URLs retornadas pela API. Para videos, o aplicativo utiliza um componente WebView com player HTML5, evitando falhas de compatibilidade observadas no componente nativo. O historico de consumo e separado por usuario, de modo que um login diferente nao reutiliza o historico visualizado por outro usuario na mesma maquina.
+    </p>
+
+    <figure>
+      <img class="phone-shot" src="assets/screenshots/android-player.png" alt="Player Android com video e comentarios">
+      <figcaption class="caption">Figura 12 - Player do aplicativo Android com area de comentarios e interacao.</figcaption>
+    </figure>
+
+    <figure>
+      <img class="phone-shot" src="assets/screenshots/android-playlists.png" alt="Tela de playlists do aplicativo Android">
+      <figcaption class="caption">Figura 13 - Tela de playlists do usuario final.</figcaption>
+    </figure>
+
+    <figure>
+      <img class="phone-shot" src="assets/screenshots/android-profile.png" alt="Tela de perfil do aplicativo Android">
+      <figcaption class="caption">Figura 14 - Tela de perfil do aplicativo Android.</figcaption>
+    </figure>
+
+    <p class="no-indent"><strong>Quadro 3 - Configuracao de acesso do Android a API local</strong></p>
+    <pre class="code-shot">private static final String BASE_URL = "http://localhost:5065";
+
+// No emulador Android foi utilizado adb reverse:
+// adb reverse tcp:5065 tcp:5065
+// Assim, localhost do emulador encaminha para a API do computador.</pre>
+  </section>
+
+  <section>
+    <h3>2.7 Banco de dados e carga inicial</h3>
+    <p>
+      O banco de dados SQLite foi populado com usuarios, criadores, playlists e arquivos de midia existentes na pasta raiz do projeto. Essa carga inicial permite demonstrar o funcionamento do sistema imediatamente apos a execucao da API, facilitando a validacao das telas web e Android.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Tipo</th>
+          <th>Registro</th>
+          <th>Observacao</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Usuario</td>
+          <td>Administrador Rubro Negro</td>
+          <td>Email: admin@paquetastreaming.com</td>
+        </tr>
+        <tr>
+          <td>Usuario</td>
+          <td>Torcedor Assinante</td>
+          <td>Email: torcedor@paquetastreaming.com</td>
+        </tr>
+        <tr>
+          <td>Criador</td>
+          <td>Paqueta Studio</td>
+          <td>Criador utilizado na carga de videos.</td>
+        </tr>
+        <tr>
+          <td>Criador</td>
+          <td>Arquibancada Digital</td>
+          <td>Criador utilizado na carga de conteudos musicais.</td>
+        </tr>
+        <tr>
+          <td>Criador</td>
+          <td>Radio Paqueta</td>
+          <td>Criador utilizado na carga de podcast.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Arquivo de midia</th>
+          <th>Tipo cadastrado</th>
+          <th>Origem</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>torcida cantando.mp4</td>
+          <td>video</td>
+          <td>C:\projeto</td>
+        </tr>
+        <tr>
+          <td>vida cotidiana relaxar.mp4</td>
+          <td>video</td>
+          <td>C:\projeto</td>
+        </tr>
+        <tr>
+          <td>Podcast Conversa furada.mp4</td>
+          <td>podcast</td>
+          <td>C:\projeto</td>
+        </tr>
+        <tr>
+          <td>HINO DO MENGAO.mp3</td>
+          <td>musica</td>
+          <td>C:\projeto</td>
+        </tr>
+        <tr>
+          <td>Amor e fe.mp3</td>
+          <td>musica</td>
+          <td>C:\projeto</td>
+        </tr>
+        <tr>
+          <td>Magica Calcinha Preta.mp3</td>
+          <td>musica</td>
+          <td>C:\projeto</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h3>2.8 Evidencias e repositorio</h3>
+    <p>
+      As evidencias do projeto foram organizadas por modulo. As capturas de tela demonstram o funcionamento das principais interfaces e auxiliam a comprovacao visual do sistema para a entrega academica. Os espacos abaixo devem ser substituidos pelos links reais do GitHub apos a publicacao do repositorio.
+    </p>
+
+    <div class="github-list">
+      <p><strong>Repositorio principal:</strong> https://github.com/USUARIO/REPOSITORIO</p>
+      <p><strong>API:</strong> https://github.com/USUARIO/REPOSITORIO/tree/main/backend/StreamingAPI</p>
+      <p><strong>Frontend web:</strong> https://github.com/USUARIO/REPOSITORIO/tree/main/app/ContentCreatorApp</p>
+      <p><strong>Aplicativo Android:</strong> https://github.com/USUARIO/REPOSITORIO/tree/main/app/ContentCreatorApp/AndroidUserApp</p>
+      <p><strong>Relatorio HTML:</strong> https://github.com/USUARIO/REPOSITORIO/tree/main/app/ContentCreatorApp/RelatorioPIM</p>
+    </div>
+
+    <p class="placeholder">
+      Espaco para inserir prints adicionais do Swagger, do banco de dados e de trechos do codigo no GitHub, caso sejam exigidos na versao final do documento.
+    </p>
+
+    <p class="no-indent"><strong>Quadro 4 - Estrutura resumida do projeto</strong></p>
+    <pre class="code-shot">C:\projeto
+  backend\StreamingAPI
+    Controllers
+    Data
+    DTOs
+    Models
+    Repositories
+    Services
+  app\ContentCreatorApp
+    Components
+    AndroidUserApp
+    RelatorioPIM
+  Manual.pdf
+  *.mp3 / *.mp4</pre>
+  </section>
+
+  <section>
+    <h2>3. Conclusao</h2>
+    <p>
+      O desenvolvimento do sistema de streaming de conteudo multimidia permitiu aplicar, de forma integrada, conhecimentos de programacao orientada a objetos, desenvolvimento web e desenvolvimento mobile. A Web API centralizou a logica de dados e seguranca, enquanto o frontend web e o aplicativo Android demonstraram formas distintas de consumir os mesmos recursos.
+    </p>
+    <p>
+      A implementacao de autenticacao por JWT, senha com hash, CRUDs, upload de arquivos, playlists e player de streaming contribuiu para aproximar o prototipo de um sistema real. O painel web atende ao uso administrativo e de criadores, enquanto o aplicativo Android atende ao usuario final, permitindo navegacao, reproducao e interacao.
+    </p>
+    <p>
+      Como resultado, o projeto cumpre a proposta do PIM VIII ao apresentar uma solucao funcional, documentada e organizada, com evidencias visuais e estrutura adequada para evolucao futura. Entre as melhorias possiveis estao a publicacao em ambiente cloud, criacao de testes automatizados mais completos, integracao com servico externo de armazenamento de midias e ampliacao dos recursos sociais da plataforma.
+    </p>
+  </section>
+
+  <section>
+    <h2>4. Referencias</h2>
+    <p class="no-indent">
+      ASSOCIAÇÃO BRASILEIRA DE NORMAS TÉCNICAS. <strong>NBR 14724: informacao e documentacao: trabalhos academicos: apresentacao</strong>. Rio de Janeiro: ABNT.
+    </p>
+    <p class="no-indent">
+      GOOGLE. <strong>Android Developers Documentation</strong>. Disponivel em: https://developer.android.com/docs. Acesso em: 28 maio 2026.
+    </p>
+    <p class="no-indent">
+      MICROSOFT. <strong>ASP.NET Core documentation</strong>. Disponivel em: https://learn.microsoft.com/aspnet/core. Acesso em: 28 maio 2026.
+    </p>
+    <p class="no-indent">
+      MICROSOFT. <strong>Entity Framework Core documentation</strong>. Disponivel em: https://learn.microsoft.com/ef/core. Acesso em: 28 maio 2026.
+    </p>
+    <p class="no-indent">
+      MICROSOFT. <strong>JSON Web Token authentication in ASP.NET Core</strong>. Disponivel em: https://learn.microsoft.com/aspnet/core/security/authentication. Acesso em: 28 maio 2026.
+    </p>
+    <p class="no-indent">
+      UNIVERSIDADE PAULISTA. <strong>Manual do PIM VIII: Curso Superior de Tecnologia em Analise e Desenvolvimento de Sistemas</strong>. Sao Paulo: UNIP EaD.
+    </p>
+  </section>
+</main>
+<script>
+  (() => {
+    const sections = Array.from(document.querySelectorAll("main > section"));
+    const prev = document.getElementById("report-prev");
+    const next = document.getElementById("report-next");
+    const jump = document.getElementById("report-jump");
+    const count = document.getElementById("report-count");
+    const all = document.getElementById("report-all");
+    const print = document.getElementById("report-print");
+    const progress = document.getElementById("report-progress-bar");
+    const storageKey = "pim8.report.page";
+    let paged = true;
+    let current = Number(localStorage.getItem(storageKey) || 0);
+
+    const sectionTitle = (section, index) => {
+      const heading = section.querySelector("h1, h2, h3");
+      const text = heading ? heading.textContent.trim() : `Pagina ${index + 1}`;
+      return `${index + 1}. ${text}`;
+    };
+
+    sections.forEach((section, index) => {
+      const option = document.createElement("option");
+      option.value = String(index);
+      option.textContent = sectionTitle(section, index);
+      jump.appendChild(option);
+    });
+
+    const clamp = (value) => Math.min(Math.max(value, 0), sections.length - 1);
+
+    const render = () => {
+      current = clamp(current);
+      document.body.classList.toggle("report-paged", paged);
+      sections.forEach((section, index) => {
+        section.classList.toggle("is-visible", !paged || index === current);
+      });
+
+      prev.disabled = !paged || current === 0;
+      next.disabled = !paged || current === sections.length - 1;
+      jump.disabled = !paged;
+      jump.value = String(current);
+      count.textContent = paged ? `Pagina ${current + 1} de ${sections.length}` : `Visualizando todas as ${sections.length} paginas`;
+      all.textContent = paged ? "Ver tudo" : "Paginar";
+      progress.style.width = paged ? `${((current + 1) / sections.length) * 100}%` : "100%";
+
+      if (paged) {
+        localStorage.setItem(storageKey, String(current));
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    };
+
+    prev.addEventListener("click", () => {
+      current -= 1;
+      render();
+    });
+
+    next.addEventListener("click", () => {
+      current += 1;
+      render();
+    });
+
+    jump.addEventListener("change", () => {
+      current = Number(jump.value);
+      render();
+    });
+
+    all.addEventListener("click", () => {
+      paged = !paged;
+      render();
+    });
+
+    print.addEventListener("click", () => window.print());
+
+    document.addEventListener("keydown", (event) => {
+      if (!paged || event.target.matches("input, textarea, select")) return;
+      if (event.key === "ArrowRight" || event.key === "PageDown") {
+        current += 1;
+        render();
+      }
+      if (event.key === "ArrowLeft" || event.key === "PageUp") {
+        current -= 1;
+        render();
+      }
+      if (event.key === "Home") {
+        current = 0;
+        render();
+      }
+      if (event.key === "End") {
+        current = sections.length - 1;
+        render();
+      }
+    });
+
+    render();
+  })();
+</script>
+</body>
+</html>

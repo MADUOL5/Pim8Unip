@@ -1,0 +1,1519 @@
+@page "/"
+@rendermode InteractiveServer
+@inject StreamingApiClient Api
+@inject IJSRuntime Js
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+
+<PageTitle>Paqueta's Streaming</PageTitle>
+
+<div id="opening-screen" class="opening-screen" data-audio-src="/audio/opening.mp3">
+    <div class="opening-rays" aria-hidden="true"></div>
+    <div class="opening-logo" aria-label="Paqueta Streaming">
+        <span>PS</span>
+        <strong>PAQUETA</strong>
+        <small>STREAMING</small>
+    </div>
+    <button type="button" class="opening-sound" hidden>Entrar</button>
+</div>
+
+<main class="app-shell">
+    <header class="topbar flamengo-hero">
+        <div class="brand-copy">
+            <h1>PAQUETA'S STREAMING</h1>
+            <p class="subtitle">
+                Saudacoes rubro-negras: bem-vindo ao seu novo streaming favorito para criar,
+                assistir e organizar conteudos com energia de final em noite de Maracana.
+            </p>
+        </div>
+
+        <div class="hero-side">
+            <div class="flag-stage" aria-hidden="true">
+                <div class="waving-flag">
+                    <span>PS</span>
+                    <i></i>
+                    <i></i>
+                    <i></i>
+                </div>
+                <div class="signal-rings">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    @if (!IsReady)
+    {
+        <section class="state-panel">
+            <strong>Carregando front...</strong>
+            <span>Preparando sessao local e configuracao da API.</span>
+        </section>
+    }
+    else if (Session is null)
+    {
+        <section class="auth-layout">
+            <form class="panel auth-panel stadium-panel" @onsubmit="CadastrarAsync" @onsubmit:preventDefault="true">
+                <div class="panel-title">
+                    <span>01</span>
+                    <h2>Criar usuario</h2>
+                </div>
+                <label>
+                    Nome
+                    <input @bind="Cadastro.Nome" required autocomplete="name" />
+                </label>
+                <label>
+                    E-mail
+                    <input type="email" @bind="Cadastro.Email" required autocomplete="email" />
+                </label>
+                <label>
+                    Senha
+                    <input type="password" @bind="Cadastro.Senha" required autocomplete="new-password" />
+                </label>
+                <button class="primary-action" type="submit" disabled="@Busy">Cadastrar e entrar</button>
+            </form>
+
+            <form class="panel auth-panel stadium-panel alt" @onsubmit="LoginAsync" @onsubmit:preventDefault="true">
+                <div class="panel-title">
+                    <span>02</span>
+                    <h2>Login</h2>
+                </div>
+                <label>
+                    E-mail
+                    <input type="email" @bind="Login.Email" required autocomplete="email" />
+                </label>
+                <label>
+                    Senha
+                    <input type="password" @bind="Login.Senha" required autocomplete="current-password" />
+                </label>
+                <button class="primary-action" type="submit" disabled="@Busy">Entrar</button>
+            </form>
+        </section>
+    }
+    else
+    {
+        <section class="session-strip">
+            <div>
+                <span>Sessao ativa</span>
+                <strong>@Session.Usuario.Nome</strong>
+                <small>@Session.Usuario.Email | expira em @Session.ExpiraEm.LocalDateTime.ToString("dd/MM/yyyy HH:mm")</small>
+            </div>
+            <button type="button" @onclick="LogoutAsync" disabled="@Busy">Sair</button>
+        </section>
+
+        <section class="metrics-grid">
+            <article>
+                <span>Usuarios</span>
+                <strong>@Usuarios.Count</strong>
+            </article>
+            <article>
+                <span>Criadores</span>
+                <strong>@Criadores.Count</strong>
+            </article>
+            <article>
+                <span>Conteudos</span>
+                <strong>@Conteudos.Count</strong>
+            </article>
+            <article>
+                <span>Midias prontas</span>
+                <strong>@ConteudosComMidia.Count</strong>
+            </article>
+        </section>
+
+        <nav class="tabs" aria-label="Areas do painel">
+            <button type="button" class="@TabClass("player")" @onclick='() => ActiveSection = "player"'>Player</button>
+            <button type="button" class="@TabClass("cine")" @onclick='() => ActiveSection = "cine"'>Cine</button>
+            <button type="button" class="@TabClass("conteudos")" @onclick='() => ActiveSection = "conteudos"'>Conteudos</button>
+            <button type="button" class="@TabClass("playlists")" @onclick='() => ActiveSection = "playlists"'>Playlists</button>
+            <button type="button" class="@TabClass("criadores")" @onclick='() => ActiveSection = "criadores"'>Criadores</button>
+            <button type="button" class="@TabClass("usuarios")" @onclick='() => ActiveSection = "usuarios"'>Usuarios</button>
+        </nav>
+
+        @if (ActiveSection == "player")
+        {
+            <section class="player-layout">
+                <div class="panel player-stage">
+                    <div class="player-topline">
+                        <div>
+                            <span class="pill">Area de reproducao</span>
+                            <h2>@(ConteudoEmReproducao?.Titulo ?? "Escolha uma midia")</h2>
+                            <p>@PlayerMessage</p>
+                        </div>
+                        @if (ReproducaoAtual is not null)
+                        {
+                            <div class="stream-meta">
+                                <span>@MediaKindLabel(ConteudoEmReproducao)</span>
+                                <strong>@FormatBytes(ReproducaoAtual.TamanhoBytes)</strong>
+                            </div>
+                        }
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(PlayerSource))
+                    {
+                        @if (IsAudio(ConteudoEmReproducao))
+                        {
+                            <div class="audio-stage">
+                                <div class="audio-art">
+                                    <span>@MediaIcon(ConteudoEmReproducao)</span>
+                                    <strong>@(ConteudoEmReproducao?.Titulo ?? "Audio")</strong>
+                                    <small>@(ConteudoEmReproducao?.Criador?.Nome ?? CriadorNome(ConteudoEmReproducao?.CriadorId ?? 0))</small>
+                                </div>
+                                <audio class="audio-player" src="@PlayerSource" controls preload="metadata"></audio>
+                            </div>
+                        }
+                        else
+                        {
+                            <video class="video-player" src="@PlayerSource" controls preload="metadata"></video>
+                        }
+                    }
+                    else
+                    {
+                        <div class="empty-player">
+                            <span class="play-symbol">PLAY</span>
+                            <strong>Player aguardando midia</strong>
+                            <p>Selecione video, musica ou podcast. O front tenta stream validado e usa o arquivo de midia como fallback.</p>
+                        </div>
+                    }
+                </div>
+
+                <aside class="panel video-rail">
+                    <div class="panel-title">
+                        <span>Historico</span>
+                        <h2>Sua arquibancada</h2>
+                    </div>
+                    @if (HistoricoPlayer.Count == 0)
+                    {
+                        <p class="muted">Assista algo pelo Cine ou pelo catalogo para montar seu historico local.</p>
+                    }
+                    else
+                    {
+                        @foreach (var conteudo in HistoricoPlayer)
+                        {
+                            <article class="history-row @(ConteudoEmReproducao?.Id == conteudo.Id ? "active" : string.Empty)">
+                                <button type="button" class="history-play" @onclick="() => PrepararReproducaoAsync(conteudo)">
+                                    <span>@MediaKindLabel(conteudo)</span>
+                                    <strong>@conteudo.Titulo</strong>
+                                    <small>@(conteudo.Criador?.Nome ?? CriadorNome(conteudo.CriadorId))</small>
+                                </button>
+                                <button type="button" class="ghost" @onclick="() => EditarConteudoDoPlayer(conteudo)">Editar</button>
+                            </article>
+                        }
+                    }
+                </aside>
+            </section>
+        }
+        else if (ActiveSection == "cine")
+        {
+            <section class="cine-shell">
+                <div class="cine-main">
+                    <section class="cine-hero panel">
+                        <div>
+                            <span class="pill">Cine Paqueta</span>
+                            <h2>@(CineDestaque?.Titulo ?? "Vitrine de videos")</h2>
+                            <p>
+                                Uma area de exibicao estilo streaming para os videos cadastrados. Passe o mouse
+                                nos cards para pre-visualizar.
+                            </p>
+                            <div class="cine-hero-actions">
+                                @if (CineDestaque is not null)
+                                {
+                                    <button type="button" class="primary-action" @onclick="() => PrepararReproducaoAsync(CineDestaque)">Assistir agora</button>
+                                }
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="cine-filter-panel panel">
+                        <div class="filter-copy">
+                            <span class="pill">Filtros</span>
+                            <h2>Escolha a proxima sessao</h2>
+                        </div>
+                        <label>
+                            Buscar
+                            <input @bind="CineBusca" @bind:event="oninput" placeholder="Titulo ou criador" />
+                        </label>
+                        <label>
+                            Criador
+                            <select @bind="CineCriadorId">
+                                <option value="0">Todos</option>
+                                @foreach (var criador in Criadores)
+                                {
+                                    <option value="@criador.Id">@criador.Nome</option>
+                                }
+                            </select>
+                        </label>
+                        <div class="filter-chips" aria-label="Filtro de disponibilidade">
+                            <button type="button" class="@FilterChipClass("todos")" @onclick='() => SetCineCategoria("todos")'>Todos</button>
+                            <button type="button" class="@FilterChipClass("prontos")" @onclick='() => SetCineCategoria("prontos")'>Prontos</button>
+                            <button type="button" class="@FilterChipClass("com-arquivo")" @onclick='() => SetCineCategoria("com-arquivo")'>Com arquivo</button>
+                            <button type="button" class="@FilterChipClass("sem-arquivo")" @onclick='() => SetCineCategoria("sem-arquivo")'>Sem arquivo</button>
+                        </div>
+                    </section>
+
+                    <section class="cine-row">
+                        <div class="cine-row-head">
+                            <div>
+                                <span class="eyebrow">Catalogo de videos</span>
+                                <h2>Em cartaz</h2>
+                            </div>
+                            <span>@CineVideosFiltrados.Count video(s)</span>
+                        </div>
+
+                        @if (CineVideosFiltrados.Count == 0)
+                        {
+                            <div class="panel cine-empty">
+                                <strong>Nenhum video encontrado</strong>
+                                <p>Cadastre conteudos do tipo video ou ajuste os filtros acima.</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="cine-grid">
+                                @foreach (var video in CineVideosPagina)
+                                {
+                                    var previewId = PreviewId(video);
+                                    var previewSource = CinePreviewSource(video);
+                                    <article class="cine-card" style="@CineCardStyle(video)" @onmouseenter="() => IniciarPreviewAsync(previewId)" @onmouseleave="() => PararPreviewAsync(previewId)">
+                                        <div class="cine-cover">
+                                            @if (!string.IsNullOrWhiteSpace(previewSource))
+                                            {
+                                                <video id="@previewId" class="cine-preview" src="@previewSource" muted loop playsinline preload="metadata" data-thumbnail-video="true"></video>
+                                            }
+                                            else
+                                            {
+                                                <div class="cine-no-preview">
+                                                    <span>Sem midia</span>
+                                                </div>
+                                            }
+                                            <div class="cine-poster">
+                                                <span>PS</span>
+                                                <strong>@video.Titulo</strong>
+                                                <small>@(video.Criador?.Nome ?? CriadorNome(video.CriadorId))</small>
+                                            </div>
+                                        </div>
+                                        <div class="cine-card-body">
+                                            <div>
+                                                <span class="pill">@video.Tipo</span>
+                                                <h3>@video.Titulo</h3>
+                                                <p>@(video.Criador?.Nome ?? CriadorNome(video.CriadorId))</p>
+                                            </div>
+                                            <div class="card-actions">
+                                                <button type="button" class="watch-action" @onclick="() => PrepararReproducaoAsync(video)">Assistir</button>
+                                                @if (!string.IsNullOrWhiteSpace(MediaUrl(video)))
+                                                {
+                                                    <a class="media-link" href="@MediaUrl(video)" target="_blank">Midia</a>
+                                                }
+                                            </div>
+                                        </div>
+                                    </article>
+                                }
+                            </div>
+                            @if (CineTotalPages > 1)
+                            {
+                                <div class="pagination-bar">
+                                    <button type="button" @onclick="() => MudarPaginaCine(-1)" disabled="@(CineCurrentPage <= 1)">Anterior</button>
+                                    <span>Pagina @CineCurrentPage de @CineTotalPages</span>
+                                    <button type="button" @onclick="() => MudarPaginaCine(1)" disabled="@(CineCurrentPage >= CineTotalPages)">Proxima</button>
+                                </div>
+                            }
+                        }
+                    </section>
+                </div>
+            </section>
+        }
+        else if (ActiveSection == "conteudos")
+        {
+            <section class="workspace">
+                <EditorPanel Title="Conteudo" Badge="Studio" ActiveMode="@ConteudoMode" ActiveModeChanged="AlterarConteudoModeAsync" HasEdit="@(ConteudoEditId > 0)" CreateLabel="Upload" EditLabel="Editar">
+                    @if (ConteudoMode == "create")
+                    {
+                        <form class="resource-form" @onsubmit="CriarConteudoAsync" @onsubmit:preventDefault="true">
+                            <label>
+                                Titulo
+                                <input @bind="ConteudoNovo.Titulo" required />
+                            </label>
+                            <label>
+                                Tipo
+                                <select @bind="ConteudoNovo.Tipo">
+                                    <option value="video">video</option>
+                                    <option value="musica">musica</option>
+                                    <option value="podcast">podcast</option>
+                                </select>
+                            </label>
+                            <label>
+                                Criador
+                                <select @bind="ConteudoNovo.CriadorId" required>
+                                    <option value="0">Selecione</option>
+                                    @foreach (var criador in Criadores)
+                                    {
+                                        <option value="@criador.Id">@criador.Nome</option>
+                                    }
+                                </select>
+                            </label>
+                            <label>
+                                Arquivo
+                                <InputFile OnChange="SelecionarArquivoConteudo" />
+                                <small>@(ArquivoConteudoNome ?? "Nenhum arquivo selecionado")</small>
+                            </label>
+                            <button class="primary-action" type="submit" disabled="@(Busy || ConteudoNovo.CriadorId == 0)">Enviar para o catalogo</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form class="resource-form" @onsubmit="AtualizarConteudoAsync" @onsubmit:preventDefault="true">
+                            <label>
+                                ID
+                                <input value="@ConteudoEditId" disabled />
+                            </label>
+                            <label>
+                                Titulo
+                                <input @bind="ConteudoEdit.Titulo" required disabled="@(ConteudoEditId == 0)" />
+                            </label>
+                            <label>
+                                Tipo
+                                <select @bind="ConteudoEdit.Tipo" disabled="@(ConteudoEditId == 0)">
+                                    <option value="video">video</option>
+                                    <option value="musica">musica</option>
+                                    <option value="podcast">podcast</option>
+                                </select>
+                            </label>
+                            <label>
+                                Criador
+                                <select @bind="ConteudoEdit.CriadorId" disabled="@(ConteudoEditId == 0)">
+                                    <option value="0">Selecione</option>
+                                    @foreach (var criador in Criadores)
+                                    {
+                                        <option value="@criador.Id">@criador.Nome</option>
+                                    }
+                                </select>
+                            </label>
+                            <label>
+                                Arquivo salvo
+                                <input @bind="ConteudoEdit.ArquivoMidia" disabled="@(ConteudoEditId == 0)" />
+                            </label>
+                            <button class="primary-action" type="submit" disabled="@(Busy || ConteudoEditId == 0)">Salvar alteracoes</button>
+                        </form>
+                    }
+                </EditorPanel>
+
+                <div class="cards-grid media-catalog">
+                    @foreach (var conteudo in ConteudosPagina)
+                    {
+                        <article class="data-card media-card">
+                            <div>
+                                <span class="pill">@conteudo.Tipo</span>
+                                <h3>@conteudo.Titulo</h3>
+                                <p>@(conteudo.Criador?.Nome ?? CriadorNome(conteudo.CriadorId))</p>
+                            </div>
+                            <div class="status-line">
+                                <span class="status-dot @(IsPlayableMedia(conteudo) ? "ok" : string.Empty)"></span>
+                                <small>@(IsPlayableMedia(conteudo) ? "Pronto para player" : "Catalogado")</small>
+                            </div>
+                            <div class="card-actions">
+                                @if (IsSupportedMedia(conteudo))
+                                {
+                                    <button type="button" class="watch-action" @onclick="() => PrepararReproducaoAsync(conteudo)">Reproduzir</button>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(MediaUrl(conteudo)))
+                                {
+                                    <a class="media-link" href="@MediaUrl(conteudo)" target="_blank">Abrir midia</a>
+                                }
+                                <button type="button" @onclick="() => SelecionarConteudo(conteudo)">Editar</button>
+                                <button type="button" class="danger" @onclick="() => RemoverConteudoAsync(conteudo.Id)">Remover</button>
+                            </div>
+                        </article>
+                    }
+                </div>
+                @if (ConteudoTotalPages > 1)
+                {
+                    <div class="pagination-bar">
+                        <button type="button" @onclick="() => MudarPaginaConteudos(-1)" disabled="@(ConteudoCurrentPage <= 1)">Anterior</button>
+                        <span>Pagina @ConteudoCurrentPage de @ConteudoTotalPages</span>
+                        <button type="button" @onclick="() => MudarPaginaConteudos(1)" disabled="@(ConteudoCurrentPage >= ConteudoTotalPages)">Proxima</button>
+                    </div>
+                }
+            </section>
+        }
+        else if (ActiveSection == "playlists")
+        {
+            <section class="workspace">
+                <EditorPanel Title="Playlist" Badge="Curadoria" ActiveMode="@PlaylistMode" ActiveModeChanged="AlterarPlaylistModeAsync" HasEdit="@(PlaylistEditId > 0)">
+                    @if (PlaylistMode == "create")
+                    {
+                        <form class="resource-form compact" @onsubmit="CriarPlaylistAsync" @onsubmit:preventDefault="true">
+                            <label>
+                                Nome
+                                <input @bind="PlaylistNova.Nome" required />
+                            </label>
+                            <label>
+                                Usuario dono
+                                <select @bind="PlaylistNova.UsuarioId" required>
+                                    <option value="0">Selecione</option>
+                                    @foreach (var usuario in Usuarios)
+                                    {
+                                        <option value="@usuario.Id">@usuario.Nome</option>
+                                    }
+                                </select>
+                            </label>
+                            <button class="primary-action" type="submit" disabled="@(Busy || PlaylistNova.UsuarioId == 0)">Criar playlist</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form class="resource-form compact" @onsubmit="AtualizarPlaylistAsync" @onsubmit:preventDefault="true">
+                            <label>
+                                ID
+                                <input value="@PlaylistEditId" disabled />
+                            </label>
+                            <label>
+                                Nome
+                                <input @bind="PlaylistEdit.Nome" required disabled="@(PlaylistEditId == 0)" />
+                            </label>
+                            <label>
+                                Usuario dono
+                                <select @bind="PlaylistEdit.UsuarioId" disabled="@(PlaylistEditId == 0)">
+                                    <option value="0">Selecione</option>
+                                    @foreach (var usuario in Usuarios)
+                                    {
+                                        <option value="@usuario.Id">@usuario.Nome</option>
+                                    }
+                                </select>
+                            </label>
+                            <button class="primary-action" type="submit" disabled="@(Busy || PlaylistEditId == 0)">Salvar playlist</button>
+                        </form>
+                    }
+                </EditorPanel>
+
+                <div class="list-stack">
+                    @foreach (var playlist in Playlists)
+                    {
+                        <article class="panel playlist-card">
+                            <div class="row-between">
+                                <div>
+                                    <span class="pill">playlist #@playlist.Id</span>
+                                    <h3>@playlist.Nome</h3>
+                                    <p>@UsuarioNome(playlist.UsuarioId) | @playlist.Items.Count item(ns)</p>
+                                </div>
+                                <div class="card-actions">
+                                    <button type="button" @onclick="() => SelecionarPlaylist(playlist)">Editar</button>
+                                    <button type="button" class="danger" @onclick="() => RemoverPlaylistAsync(playlist.Id)">Remover</button>
+                                </div>
+                            </div>
+
+                            <form class="inline-form" @onsubmit="() => AdicionarItemPlaylistAsync(playlist.Id)" @onsubmit:preventDefault="true">
+                                <select value="@ConteudoSelecionadoParaPlaylist(playlist.Id)" @onchange="e => DefinirConteudoParaPlaylist(playlist.Id, e.Value)">
+                                    <option value="0">Selecione um conteudo</option>
+                                    @foreach (var conteudo in Conteudos)
+                                    {
+                                        <option value="@conteudo.Id">@conteudo.Titulo</option>
+                                    }
+                                </select>
+                                <button type="submit" disabled="@(Busy || Conteudos.Count == 0)">Adicionar item</button>
+                            </form>
+
+                            <div class="playlist-items">
+                                @foreach (var item in playlist.Items)
+                                {
+                                    <div>
+                                        <span>@(item.Conteudo?.Titulo ?? ConteudoTitulo(item.ConteudoId))</span>
+                                        <button type="button" class="danger ghost" @onclick="() => RemoverItemPlaylistAsync(item.Id)">Remover</button>
+                                    </div>
+                                }
+                            </div>
+                        </article>
+                    }
+                </div>
+            </section>
+        }
+        else if (ActiveSection == "criadores")
+        {
+            <section class="workspace">
+                <EditorPanel Title="Criador" Badge="Autor" ActiveMode="@CriadorMode" ActiveModeChanged="AlterarCriadorModeAsync" HasEdit="@(CriadorEditId > 0)">
+                    @if (CriadorMode == "create")
+                    {
+                        <form class="resource-form compact" @onsubmit="CriarCriadorAsync" @onsubmit:preventDefault="true">
+                            <label>
+                                Nome
+                                <input @bind="CriadorNovo.Nome" required />
+                            </label>
+                            <button class="primary-action" type="submit" disabled="@Busy">Criar criador</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form class="resource-form compact" @onsubmit="AtualizarCriadorAsync" @onsubmit:preventDefault="true">
+                            <label>
+                                ID
+                                <input value="@CriadorEditId" disabled />
+                            </label>
+                            <label>
+                                Nome
+                                <input @bind="CriadorEdit.Nome" required disabled="@(CriadorEditId == 0)" />
+                            </label>
+                            <button class="primary-action" type="submit" disabled="@(Busy || CriadorEditId == 0)">Salvar criador</button>
+                        </form>
+                    }
+                </EditorPanel>
+
+                <div class="table-panel">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nome</th>
+                                <th>Acoes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var criador in Criadores)
+                            {
+                                <tr>
+                                    <td>@criador.Id</td>
+                                    <td>@criador.Nome</td>
+                                    <td>
+                                        <button type="button" @onclick="() => SelecionarCriador(criador)">Editar</button>
+                                        <button type="button" class="danger" @onclick="() => RemoverCriadorAsync(criador.Id)">Remover</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        }
+        else
+        {
+            <section class="workspace">
+                <EditorPanel Title="Usuario" Badge="Acesso" ActiveMode="@UsuarioMode" ActiveModeChanged="AlterarUsuarioModeAsync" HasEdit="@(UsuarioEditId > 0)">
+                    @if (UsuarioMode == "create")
+                    {
+                        <form class="resource-form" @onsubmit="CriarUsuarioAsync" @onsubmit:preventDefault="true">
+                            <label>
+                                Nome
+                                <input @bind="UsuarioNovo.Nome" required />
+                            </label>
+                            <label>
+                                E-mail
+                                <input type="email" @bind="UsuarioNovo.Email" required />
+                            </label>
+                            <label>
+                                Senha
+                                <input type="password" @bind="UsuarioNovo.Senha" required />
+                            </label>
+                            <button class="primary-action" type="submit" disabled="@Busy">Criar usuario</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form class="resource-form" @onsubmit="AtualizarUsuarioAsync" @onsubmit:preventDefault="true">
+                            <label>
+                                ID
+                                <input value="@UsuarioEditId" disabled />
+                            </label>
+                            <label>
+                                Nome
+                                <input @bind="UsuarioEdit.Nome" required disabled="@(UsuarioEditId == 0)" />
+                            </label>
+                            <label>
+                                E-mail
+                                <input type="email" @bind="UsuarioEdit.Email" required disabled="@(UsuarioEditId == 0)" />
+                            </label>
+                            <button class="primary-action" type="submit" disabled="@(Busy || UsuarioEditId == 0)">Salvar usuario</button>
+                        </form>
+                    }
+                </EditorPanel>
+
+                <div class="table-panel">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nome</th>
+                                <th>E-mail</th>
+                                <th>Acoes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var usuario in Usuarios)
+                            {
+                                <tr>
+                                    <td>@usuario.Id</td>
+                                    <td>@usuario.Nome</td>
+                                    <td>@usuario.Email</td>
+                                    <td>
+                                        <button type="button" @onclick="() => SelecionarUsuario(usuario)">Editar</button>
+                                        <button type="button" class="danger" @onclick="() => RemoverUsuarioAsync(usuario.Id)">Remover</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        }
+    }
+
+    @if (!string.IsNullOrWhiteSpace(StatusMessage))
+    {
+        <div class="toast @(IsError ? "error" : "success")" role="status">@StatusMessage</div>
+    }
+</main>
+
+@code {
+    private const string AuthStorageKey = "streaming.auth";
+    private const string ApiBaseStorageKey = "streaming.apiBaseUrl";
+    private const int ItemsPerPage = 10;
+    private const string PlayerHistoryStorageBaseKey = "streaming.playerHistory";
+
+    private bool IsReady = true;
+    private bool Busy;
+    private bool IsError;
+    private string StatusMessage = string.Empty;
+    private string ActiveSection = "player";
+    private string ApiBaseUrl = "http://localhost:5065";
+    private string ConteudoMode = "create";
+    private string PlaylistMode = "create";
+    private string CriadorMode = "create";
+    private string UsuarioMode = "create";
+    private string CineBusca = string.Empty;
+    private string CineCategoria = "todos";
+    private int CineCriadorId;
+    private int CinePage = 1;
+    private int ConteudoPage = 1;
+    private AuthResponse? Session;
+    private Conteudo? ConteudoEmReproducao;
+    private Conteudo? CineDestaque;
+    private ReproducaoConteudo? ReproducaoAtual;
+
+    private AuthCadastroRequest Cadastro = new();
+    private AuthLoginRequest Login = new();
+    private UsuarioCreateRequest UsuarioNovo = new();
+    private UsuarioUpdateRequest UsuarioEdit = new();
+    private int UsuarioEditId;
+    private CriadorRequest CriadorNovo = new();
+    private CriadorRequest CriadorEdit = new();
+    private int CriadorEditId;
+    private ConteudoCreateRequest ConteudoNovo = new();
+    private ConteudoUpdateRequest ConteudoEdit = new();
+    private int ConteudoEditId;
+    private PlaylistRequest PlaylistNova = new();
+    private PlaylistRequest PlaylistEdit = new();
+    private int PlaylistEditId;
+    private IBrowserFile? ArquivoConteudo;
+    private string? ArquivoConteudoNome;
+    private readonly Dictionary<int, int> ConteudoPorPlaylist = [];
+
+    private List<Usuario> Usuarios = [];
+    private List<Criador> Criadores = [];
+    private List<Conteudo> Conteudos = [];
+    private List<Playlist> Playlists = [];
+    private List<int> PlayerHistoryIds = [];
+
+    private List<Conteudo> ConteudosComMidia => Conteudos.Where(IsSupportedMedia).ToList();
+
+    private List<Conteudo> CineVideos => Conteudos.Where(IsVideo).ToList();
+
+    private List<Conteudo> CineVideosFiltrados => CineVideos
+        .Where(PassaFiltroCine)
+        .OrderBy(conteudo => conteudo.Titulo)
+        .ToList();
+
+    private int CineTotalPages => TotalPages(CineVideosFiltrados.Count);
+
+    private int CineCurrentPage => ClampPage(CinePage, CineTotalPages);
+
+    private List<Conteudo> CineVideosPagina => Paginar(CineVideosFiltrados, CineCurrentPage);
+
+    private int ConteudoTotalPages => TotalPages(Conteudos.Count);
+
+    private int ConteudoCurrentPage => ClampPage(ConteudoPage, ConteudoTotalPages);
+
+    private List<Conteudo> ConteudosPagina => Paginar(Conteudos, ConteudoCurrentPage);
+
+    private List<Conteudo> HistoricoPlayer => PlayerHistoryIds
+        .Select(id => Conteudos.FirstOrDefault(conteudo => conteudo.Id == id))
+        .Where(conteudo => conteudo is not null)
+        .Cast<Conteudo>()
+        .Where(IsSupportedMedia)
+        .ToList();
+
+    private string? PlayerHistoryStorageKey => Session is null
+        ? null
+        : $"{PlayerHistoryStorageBaseKey}.usuario.{Session.Usuario.Id}";
+
+    private string? PlayerSource => BuildPlayerSource(ConteudoEmReproducao);
+
+    private string PlayerMessage
+    {
+        get
+        {
+            if (ConteudoEmReproducao is null)
+            {
+                return "Selecione video, musica ou podcast para iniciar o player.";
+            }
+
+            if (ReproducaoAtual is not null && !string.IsNullOrWhiteSpace(ReproducaoAtual.Mensagem))
+            {
+                return ReproducaoAtual.Mensagem;
+            }
+
+            return IsVideo(ConteudoEmReproducao)
+                ? "Video pronto para reproducao."
+                : "Audio pronto para reproducao usando o arquivo de midia.";
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        ApiBaseUrl = await Js.InvokeAsync<string?>("localStorage.getItem", ApiBaseStorageKey)
+            ?? Configuration["StreamingApi:BaseUrl"]
+            ?? ApiBaseUrl;
+
+        var authJson = await Js.InvokeAsync<string?>("localStorage.getItem", AuthStorageKey);
+        if (!string.IsNullOrWhiteSpace(authJson))
+        {
+            Session = System.Text.Json.JsonSerializer.Deserialize<AuthResponse>(
+                authJson,
+                new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web)
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+            if (Session is not null)
+            {
+                await LoadProtectedDataAsync("Sessao restaurada.");
+            }
+        }
+
+        IsReady = true;
+        StateHasChanged();
+    }
+
+    private async Task SalvarApiBaseUrlAsync()
+    {
+        await Js.InvokeVoidAsync("localStorage.setItem", ApiBaseStorageKey, ApiBaseUrl.Trim().TrimEnd('/'));
+        SetStatus("Endpoint da API salvo.");
+    }
+
+    private async Task CadastrarAsync() =>
+        await RunAsync(async () =>
+        {
+            Session = await Api.CadastrarAsync(ApiBaseUrl, Cadastro);
+            ResetarEstadoDeUsuarioAtual();
+            await PersistAuthAsync();
+            Cadastro = new();
+            await LoadProtectedDataAsync("Cadastro realizado e token salvo.");
+        });
+
+    private async Task LoginAsync() =>
+        await RunAsync(async () =>
+        {
+            Session = await Api.LoginAsync(ApiBaseUrl, Login);
+            ResetarEstadoDeUsuarioAtual();
+            await PersistAuthAsync();
+            Login = new();
+            await LoadProtectedDataAsync("Login realizado e token salvo.");
+        });
+
+    private async Task LogoutAsync()
+    {
+        Session = null;
+        Usuarios = [];
+        Criadores = [];
+        Conteudos = [];
+        Playlists = [];
+        PlayerHistoryIds = [];
+        ConteudoEmReproducao = null;
+        ReproducaoAtual = null;
+        await Js.InvokeVoidAsync("localStorage.removeItem", AuthStorageKey);
+        await LimparHistoricoLegadoAsync();
+        SetStatus("Sessao encerrada.");
+    }
+
+    private async Task LoadProtectedDataAsync(string? successMessage = null) =>
+        await RunAsync(async () =>
+        {
+            if (Session is null)
+            {
+                return;
+            }
+
+            Usuarios = await Api.ListarUsuariosAsync(ApiBaseUrl, Session.Token);
+            Criadores = await Api.ListarCriadoresAsync(ApiBaseUrl, Session.Token);
+            Conteudos = await Api.ListarConteudosAsync(ApiBaseUrl, Session.Token);
+            Playlists = await Api.ListarPlaylistsAsync(ApiBaseUrl, Session.Token);
+
+            PlaylistNova.UsuarioId = Session.Usuario.Id;
+            if (ConteudoNovo.CriadorId == 0 && Criadores.Count > 0)
+            {
+                ConteudoNovo.CriadorId = Criadores[0].Id;
+            }
+
+            ConteudoEmReproducao ??= ConteudosComMidia.FirstOrDefault();
+            CineDestaque ??= CineVideosFiltrados.FirstOrDefault() ?? CineVideos.FirstOrDefault();
+            await RestaurarHistoricoPlayerAsync();
+            IsReady = true;
+            if (!string.IsNullOrWhiteSpace(successMessage))
+            {
+                SetStatus(successMessage);
+            }
+        });
+
+    private async Task PrepararReproducaoAsync(Conteudo conteudo)
+    {
+        ActiveSection = "player";
+        await RunAsync(async () =>
+        {
+            ConteudoEmReproducao = conteudo;
+            CineDestaque = IsVideo(conteudo) ? conteudo : CineDestaque;
+            ReproducaoAtual = null;
+
+            if (IsVideo(conteudo))
+            {
+                try
+                {
+                    ReproducaoAtual = await Api.ObterReproducaoAsync(ApiBaseUrl, Token, conteudo.Id);
+                }
+                catch (Exception ex) when (HasMediaFallback(conteudo))
+                {
+                    SetStatus($"Usando arquivo direto da midia para {conteudo.Titulo}. Detalhe da validacao: {ex.Message}");
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(PlayerSource))
+            {
+                SetError("Este conteudo nao possui URL ou arquivo de midia para o player.");
+                return;
+            }
+
+            SetStatus($"{MediaKindLabel(conteudo)} pronto: {conteudo.Titulo}.");
+            await SalvarHistoricoPlayerAsync(conteudo);
+        });
+    }
+
+    private async Task CriarUsuarioAsync() =>
+        await RunAsync(async () =>
+        {
+            await Api.CriarUsuarioAsync(ApiBaseUrl, Token, UsuarioNovo);
+            UsuarioNovo = new();
+            await LoadProtectedDataAsync("Usuario criado.");
+        });
+
+    private async Task AtualizarUsuarioAsync() =>
+        await RunAsync(async () =>
+        {
+            await Api.AtualizarUsuarioAsync(ApiBaseUrl, Token, UsuarioEditId, UsuarioEdit);
+            UsuarioEditId = 0;
+            UsuarioEdit = new();
+            UsuarioMode = "create";
+            await LoadProtectedDataAsync("Usuario atualizado.");
+        });
+
+    private async Task RemoverUsuarioAsync(int id) =>
+        await RunAsync(async () =>
+        {
+            await Api.RemoverUsuarioAsync(ApiBaseUrl, Token, id);
+            await LoadProtectedDataAsync("Usuario removido.");
+        });
+
+    private async Task CriarCriadorAsync() =>
+        await RunAsync(async () =>
+        {
+            await Api.CriarCriadorAsync(ApiBaseUrl, Token, CriadorNovo);
+            CriadorNovo = new();
+            await LoadProtectedDataAsync("Criador criado.");
+        });
+
+    private async Task AtualizarCriadorAsync() =>
+        await RunAsync(async () =>
+        {
+            await Api.AtualizarCriadorAsync(ApiBaseUrl, Token, CriadorEditId, CriadorEdit);
+            CriadorEditId = 0;
+            CriadorEdit = new();
+            CriadorMode = "create";
+            await LoadProtectedDataAsync("Criador atualizado.");
+        });
+
+    private async Task RemoverCriadorAsync(int id) =>
+        await RunAsync(async () =>
+        {
+            await Api.RemoverCriadorAsync(ApiBaseUrl, Token, id);
+            await LoadProtectedDataAsync("Criador removido.");
+        });
+
+    private async Task CriarConteudoAsync() =>
+        await RunAsync(async () =>
+        {
+            await Api.CriarConteudoAsync(ApiBaseUrl, Token, ConteudoNovo, ArquivoConteudo);
+            ConteudoNovo = new ConteudoCreateRequest { Tipo = "video", CriadorId = Criadores.FirstOrDefault()?.Id ?? 0 };
+            ArquivoConteudo = null;
+            ArquivoConteudoNome = null;
+            await LoadProtectedDataAsync("Conteudo criado.");
+        });
+
+    private async Task AtualizarConteudoAsync() =>
+        await RunAsync(async () =>
+        {
+            await Api.AtualizarConteudoAsync(ApiBaseUrl, Token, ConteudoEditId, ConteudoEdit);
+            ConteudoEditId = 0;
+            ConteudoEdit = new();
+            ConteudoMode = "create";
+            await LoadProtectedDataAsync("Conteudo atualizado.");
+        });
+
+    private async Task RemoverConteudoAsync(int id) =>
+        await RunAsync(async () =>
+        {
+            await Api.RemoverConteudoAsync(ApiBaseUrl, Token, id);
+            if (ConteudoEmReproducao?.Id == id)
+            {
+                ConteudoEmReproducao = null;
+                ReproducaoAtual = null;
+            }
+            await LoadProtectedDataAsync("Conteudo removido.");
+        });
+
+    private async Task CriarPlaylistAsync() =>
+        await RunAsync(async () =>
+        {
+            await Api.CriarPlaylistAsync(ApiBaseUrl, Token, PlaylistNova);
+            PlaylistNova = new PlaylistRequest { UsuarioId = Session?.Usuario.Id ?? 0 };
+            await LoadProtectedDataAsync("Playlist criada.");
+        });
+
+    private async Task AtualizarPlaylistAsync() =>
+        await RunAsync(async () =>
+        {
+            await Api.AtualizarPlaylistAsync(ApiBaseUrl, Token, PlaylistEditId, PlaylistEdit);
+            PlaylistEditId = 0;
+            PlaylistEdit = new();
+            PlaylistMode = "create";
+            await LoadProtectedDataAsync("Playlist atualizada.");
+        });
+
+    private async Task RemoverPlaylistAsync(int id) =>
+        await RunAsync(async () =>
+        {
+            await Api.RemoverPlaylistAsync(ApiBaseUrl, Token, id);
+            await LoadProtectedDataAsync("Playlist removida.");
+        });
+
+    private async Task AdicionarItemPlaylistAsync(int playlistId) =>
+        await RunAsync(async () =>
+        {
+            var conteudoId = ConteudoSelecionadoParaPlaylist(playlistId);
+            if (conteudoId == 0)
+            {
+                SetError("Selecione um conteudo para adicionar.");
+                return;
+            }
+
+            await Api.AdicionarItemPlaylistAsync(ApiBaseUrl, Token, playlistId, new AddItemPlaylistRequest { ConteudoId = conteudoId });
+            ConteudoPorPlaylist.Remove(playlistId);
+            await LoadProtectedDataAsync("Item adicionado na playlist.");
+        });
+
+    private async Task RemoverItemPlaylistAsync(int itemId) =>
+        await RunAsync(async () =>
+        {
+            await Api.RemoverItemPlaylistAsync(ApiBaseUrl, Token, itemId);
+            await LoadProtectedDataAsync("Item removido da playlist.");
+        });
+
+    private Task AlterarConteudoModeAsync(string mode)
+    {
+        ConteudoMode = mode;
+        return Task.CompletedTask;
+    }
+
+    private Task AlterarPlaylistModeAsync(string mode)
+    {
+        PlaylistMode = mode;
+        return Task.CompletedTask;
+    }
+
+    private Task AlterarCriadorModeAsync(string mode)
+    {
+        CriadorMode = mode;
+        return Task.CompletedTask;
+    }
+
+    private Task AlterarUsuarioModeAsync(string mode)
+    {
+        UsuarioMode = mode;
+        return Task.CompletedTask;
+    }
+
+    private void SelecionarCineDestaque(Conteudo conteudo)
+    {
+        CineDestaque = conteudo;
+    }
+
+    private void SetCineCategoria(string categoria)
+    {
+        CineCategoria = categoria;
+        CinePage = 1;
+    }
+
+    private void MudarPaginaCine(int direction)
+    {
+        CinePage = ClampPage(CineCurrentPage + direction, CineTotalPages);
+    }
+
+    private void MudarPaginaConteudos(int direction)
+    {
+        ConteudoPage = ClampPage(ConteudoCurrentPage + direction, ConteudoTotalPages);
+    }
+
+    private void EditarConteudoDoPlayer(Conteudo conteudo)
+    {
+        SelecionarConteudo(conteudo);
+        ActiveSection = "conteudos";
+        SetStatus($"Editando conteudo direto do historico: {conteudo.Titulo}.");
+    }
+
+    private async Task RestaurarHistoricoPlayerAsync()
+    {
+        var storageKey = PlayerHistoryStorageKey;
+        if (Session is null || string.IsNullOrWhiteSpace(storageKey))
+        {
+            PlayerHistoryIds = [];
+            return;
+        }
+
+        await LimparHistoricoLegadoAsync();
+
+        var historyJson = await Js.InvokeAsync<string?>("localStorage.getItem", storageKey);
+        if (string.IsNullOrWhiteSpace(historyJson))
+        {
+            PlayerHistoryIds = [];
+            return;
+        }
+
+        var ids = LerHistoricoDoUsuarioAtual(historyJson);
+        var existingIds = Conteudos.Select(conteudo => conteudo.Id).ToHashSet();
+        PlayerHistoryIds = ids
+            .Where(existingIds.Contains)
+            .Distinct()
+            .Take(ItemsPerPage)
+            .ToList();
+    }
+
+    private async Task SalvarHistoricoPlayerAsync(Conteudo conteudo)
+    {
+        var storageKey = PlayerHistoryStorageKey;
+        if (Session is null || string.IsNullOrWhiteSpace(storageKey))
+        {
+            return;
+        }
+
+        PlayerHistoryIds.Remove(conteudo.Id);
+        PlayerHistoryIds.Insert(0, conteudo.Id);
+        PlayerHistoryIds = PlayerHistoryIds
+            .Distinct()
+            .Take(ItemsPerPage)
+            .ToList();
+
+        var cache = new PlayerHistoryCache(Session.Usuario.Id, PlayerHistoryIds);
+        var historyJson = System.Text.Json.JsonSerializer.Serialize(cache);
+        await LimparHistoricoLegadoAsync();
+        await Js.InvokeVoidAsync("localStorage.setItem", storageKey, historyJson);
+    }
+
+    private void ResetarEstadoDeUsuarioAtual()
+    {
+        PlayerHistoryIds = [];
+        ConteudoEmReproducao = null;
+        ReproducaoAtual = null;
+        CineDestaque = null;
+    }
+
+    private async Task LimparHistoricoLegadoAsync()
+    {
+        await Js.InvokeVoidAsync("localStorage.removeItem", PlayerHistoryStorageBaseKey);
+    }
+
+    private List<int> LerHistoricoDoUsuarioAtual(string historyJson)
+    {
+        if (Session is null)
+        {
+            return [];
+        }
+
+        try
+        {
+            if (historyJson.TrimStart().StartsWith("[", StringComparison.Ordinal))
+            {
+                return System.Text.Json.JsonSerializer.Deserialize<List<int>>(historyJson) ?? [];
+            }
+
+            var cache = System.Text.Json.JsonSerializer.Deserialize<PlayerHistoryCache>(
+                historyJson,
+                new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web)
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+            return cache?.UsuarioId == Session.Usuario.Id
+                ? cache.ConteudoIds ?? []
+                : [];
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            return [];
+        }
+    }
+
+    private async Task IniciarPreviewAsync(string previewId)
+    {
+        try
+        {
+            await Js.InvokeVoidAsync("paquetaPreview.play", previewId);
+        }
+        catch (JSException)
+        {
+        }
+        catch (InvalidOperationException)
+        {
+        }
+    }
+
+    private async Task PararPreviewAsync(string previewId)
+    {
+        try
+        {
+            await Js.InvokeVoidAsync("paquetaPreview.stop", previewId);
+        }
+        catch (JSException)
+        {
+        }
+        catch (InvalidOperationException)
+        {
+        }
+    }
+
+    private void SelecionarArquivoConteudo(InputFileChangeEventArgs args)
+    {
+        ArquivoConteudo = args.File;
+        ArquivoConteudoNome = args.File.Name;
+    }
+
+    private void SelecionarUsuario(Usuario usuario)
+    {
+        UsuarioEditId = usuario.Id;
+        UsuarioEdit = new UsuarioUpdateRequest { Nome = usuario.Nome, Email = usuario.Email };
+        UsuarioMode = "edit";
+    }
+
+    private void SelecionarCriador(Criador criador)
+    {
+        CriadorEditId = criador.Id;
+        CriadorEdit = new CriadorRequest { Nome = criador.Nome };
+        CriadorMode = "edit";
+    }
+
+    private void SelecionarConteudo(Conteudo conteudo)
+    {
+        ConteudoEditId = conteudo.Id;
+        ConteudoEdit = new ConteudoUpdateRequest
+        {
+            Titulo = conteudo.Titulo,
+            Tipo = conteudo.Tipo,
+            CriadorId = conteudo.CriadorId,
+            ArquivoMidia = conteudo.ArquivoMidia
+        };
+        ConteudoMode = "edit";
+    }
+
+    private void SelecionarPlaylist(Playlist playlist)
+    {
+        PlaylistEditId = playlist.Id;
+        PlaylistEdit = new PlaylistRequest { Nome = playlist.Nome, UsuarioId = playlist.UsuarioId };
+        PlaylistMode = "edit";
+    }
+
+    private void DefinirConteudoParaPlaylist(int playlistId, object? value)
+    {
+        ConteudoPorPlaylist[playlistId] = int.TryParse(value?.ToString(), out var id) ? id : 0;
+    }
+
+    private int ConteudoSelecionadoParaPlaylist(int playlistId) =>
+        ConteudoPorPlaylist.TryGetValue(playlistId, out var id) ? id : 0;
+
+    private async Task RunAsync(Func<Task> action)
+    {
+        Busy = true;
+        try
+        {
+            await action();
+        }
+        catch (StreamingApiException ex) when (ex.StatusCode == 401)
+        {
+            await LogoutAsync();
+            SetError("Sessao expirada ou token invalido. Faca login novamente.");
+        }
+        catch (Exception ex)
+        {
+            SetError(ex.Message);
+        }
+        finally
+        {
+            Busy = false;
+        }
+    }
+
+    private async Task PersistAuthAsync()
+    {
+        if (Session is null)
+        {
+            return;
+        }
+
+        var json = System.Text.Json.JsonSerializer.Serialize(
+            Session,
+            new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
+        await Js.InvokeVoidAsync("localStorage.setItem", AuthStorageKey, json);
+    }
+
+    private string Token => Session?.Token ?? string.Empty;
+
+    private string TabClass(string section) => ActiveSection == section ? "active" : string.Empty;
+
+    private string FilterChipClass(string category) => CineCategoria == category ? "active" : string.Empty;
+
+    private string UsuarioNome(int id) => Usuarios.FirstOrDefault(usuario => usuario.Id == id)?.Nome ?? $"Usuario #{id}";
+
+    private string CriadorNome(int id) => Criadores.FirstOrDefault(criador => criador.Id == id)?.Nome ?? $"Criador #{id}";
+
+    private string ConteudoTitulo(int id) => Conteudos.FirstOrDefault(conteudo => conteudo.Id == id)?.Titulo ?? $"Conteudo #{id}";
+
+    private static int TotalPages(int count) =>
+        Math.Max(1, (int)Math.Ceiling(count / (double)ItemsPerPage));
+
+    private static int ClampPage(int page, int totalPages) =>
+        Math.Min(Math.Max(page, 1), Math.Max(totalPages, 1));
+
+    private static List<T> Paginar<T>(IReadOnlyList<T> items, int page) =>
+        items
+            .Skip((ClampPage(page, TotalPages(items.Count)) - 1) * ItemsPerPage)
+            .Take(ItemsPerPage)
+            .ToList();
+
+    private bool IsVideo(Conteudo? conteudo) => NormalizeTipo(conteudo?.Tipo) == "video";
+
+    private bool PassaFiltroCine(Conteudo conteudo)
+    {
+        if (CineCriadorId > 0 && conteudo.CriadorId != CineCriadorId)
+        {
+            return false;
+        }
+
+        if (!string.IsNullOrWhiteSpace(CineBusca))
+        {
+            var termo = CineBusca.Trim();
+            var tituloOk = conteudo.Titulo.Contains(termo, StringComparison.OrdinalIgnoreCase);
+            var criadorOk = (conteudo.Criador?.Nome ?? CriadorNome(conteudo.CriadorId))
+                .Contains(termo, StringComparison.OrdinalIgnoreCase);
+
+            if (!tituloOk && !criadorOk)
+            {
+                return false;
+            }
+        }
+
+        return CineCategoria switch
+        {
+            "prontos" => IsPlayableMedia(conteudo),
+            "com-arquivo" => HasMediaFallback(conteudo),
+            "sem-arquivo" => !HasMediaFallback(conteudo),
+            _ => true
+        };
+    }
+
+    private bool IsAudio(Conteudo? conteudo)
+    {
+        var tipo = NormalizeTipo(conteudo?.Tipo);
+        return tipo is "musica" or "podcast" or "audio";
+    }
+
+    private bool IsSupportedMedia(Conteudo conteudo) => IsVideo(conteudo) || IsAudio(conteudo);
+
+    private bool IsPlayableMedia(Conteudo conteudo) =>
+        IsSupportedMedia(conteudo) &&
+        (conteudo.DisponivelParaReproducao ||
+         !string.IsNullOrWhiteSpace(conteudo.UrlReproducao) ||
+         HasMediaFallback(conteudo));
+
+    private bool HasMediaFallback(Conteudo conteudo) =>
+        !string.IsNullOrWhiteSpace(conteudo.UrlMidia) ||
+        !string.IsNullOrWhiteSpace(conteudo.ArquivoMidia);
+
+    private string MediaKindLabel(Conteudo? conteudo)
+    {
+        if (IsVideo(conteudo))
+        {
+            return "Video";
+        }
+
+        var tipo = NormalizeTipo(conteudo?.Tipo);
+        if (tipo == "podcast")
+        {
+            return "Podcast";
+        }
+
+        if (tipo is "musica" or "audio")
+        {
+            return "Musica";
+        }
+
+        return "Midia";
+    }
+
+    private string MediaIcon(Conteudo? conteudo)
+    {
+        var tipo = NormalizeTipo(conteudo?.Tipo);
+        if (tipo == "podcast")
+        {
+            return "CAST";
+        }
+
+        if (tipo is "musica" or "audio")
+        {
+            return "MP3";
+        }
+
+        return "PLAY";
+    }
+
+    private string? BuildPlayerSource(Conteudo? conteudo)
+    {
+        if (conteudo is null)
+        {
+            return null;
+        }
+
+        if (IsVideo(conteudo))
+        {
+            return AbsolutizarUrl(ReproducaoAtual?.UrlStream)
+                ?? AbsolutizarUrl(conteudo.UrlReproducao)
+                ?? MediaUrl(conteudo);
+        }
+
+        return MediaUrl(conteudo)
+            ?? AbsolutizarUrl(conteudo.UrlReproducao)
+            ?? AbsolutizarUrl(ReproducaoAtual?.UrlStream);
+    }
+
+    private string? CinePreviewSource(Conteudo conteudo) =>
+        AbsolutizarUrl(conteudo.UrlReproducao) ?? MediaUrl(conteudo);
+
+    private static string PreviewId(Conteudo conteudo) => $"cine-preview-{conteudo.Id}";
+
+    private static string CineCardStyle(Conteudo conteudo)
+    {
+        var palette = conteudo.Id % 4;
+        return palette switch
+        {
+            0 => "--cine-accent:#dc2626;--cine-glow:rgba(220,38,38,.32);",
+            1 => "--cine-accent:#facc15;--cine-glow:rgba(250,204,21,.26);",
+            2 => "--cine-accent:#ef4444;--cine-glow:rgba(239,68,68,.3);",
+            _ => "--cine-accent:#991b1b;--cine-glow:rgba(153,27,27,.34);"
+        };
+    }
+
+    private static string NormalizeTipoLegacy(string? tipo) =>
+        (tipo ?? string.Empty)
+            .Trim()
+            .ToLowerInvariant()
+            .Replace("ú", "u")
+            .Replace("ù", "u")
+            .Replace("ü", "u")
+            .Replace("á", "a")
+            .Replace("à", "a")
+            .Replace("ã", "a")
+            .Replace("â", "a")
+            .Replace("é", "e")
+            .Replace("ê", "e")
+            .Replace("í", "i")
+            .Replace("ó", "o")
+            .Replace("ô", "o")
+            .Replace("õ", "o")
+            .Replace("ç", "c");
+
+    private static string NormalizeTipo(string? tipo)
+    {
+        var normalized = (tipo ?? string.Empty)
+            .Trim()
+            .ToLowerInvariant()
+            .Normalize(System.Text.NormalizationForm.FormD);
+        var builder = new System.Text.StringBuilder(normalized.Length);
+
+        foreach (var character in normalized)
+        {
+            var category = System.Globalization.CharUnicodeInfo.GetUnicodeCategory(character);
+            if (category != System.Globalization.UnicodeCategory.NonSpacingMark)
+            {
+                builder.Append(character);
+            }
+        }
+
+        return builder.ToString().Normalize(System.Text.NormalizationForm.FormC);
+    }
+
+    private string? MediaUrl(Conteudo conteudo)
+    {
+        if (!string.IsNullOrWhiteSpace(conteudo.UrlMidia))
+        {
+            return AbsolutizarUrl(conteudo.UrlMidia);
+        }
+
+        return string.IsNullOrWhiteSpace(conteudo.ArquivoMidia)
+            ? null
+            : $"{ApiBaseUrl.Trim().TrimEnd('/')}/Media/{Uri.EscapeDataString(conteudo.ArquivoMidia)}";
+    }
+
+    private string? AbsolutizarUrl(string? url)
+    {
+        if (string.IsNullOrWhiteSpace(url))
+        {
+            return null;
+        }
+
+        if (Uri.TryCreate(url, UriKind.Absolute, out _))
+        {
+            return url;
+        }
+
+        return $"{ApiBaseUrl.Trim().TrimEnd('/')}/{url.TrimStart('/')}";
+    }
+
+    private static string FormatBytes(long bytes)
+    {
+        if (bytes <= 0)
+        {
+            return "0 MB";
+        }
+
+        var mb = bytes / 1024d / 1024d;
+        return $"{mb:0.##} MB";
+    }
+
+    private void SetStatus(string message)
+    {
+        StatusMessage = message;
+        IsError = false;
+    }
+
+    private void SetError(string message)
+    {
+        StatusMessage = message;
+        IsError = true;
+    }
+
+    private sealed record PlayerHistoryCache(int UsuarioId, List<int> ConteudoIds);
+}

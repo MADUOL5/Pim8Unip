@@ -1,0 +1,37 @@
+﻿/*
+!/app/
+!/backend/
+!.gitignore
+
+# Build artifacts
+**/bin/
+**/obj/
+**/.vs/
+**/.idea/
+**/.gradle/
+**/build/
+**/node_modules/
+**/DataProtectionKeys/
+**/.chrome-profile*/
+**/.chrome-test*/
+**/*.user
+**/*.suo
+**/*.log
+**/*.tmp
+**/*.dmp
+
+# Local databases and generated runtime files
+**/*.db
+**/*.db-shm
+**/*.db-wal
+
+# Local capture helpers
+**/capture-evidence.mjs
+**/serve-report.mjs
+**/report-session.html
+**/paqueta-screen*.png
+
+# Android local machine files
+**/local.properties
+**/.cxx/
+**/captures/

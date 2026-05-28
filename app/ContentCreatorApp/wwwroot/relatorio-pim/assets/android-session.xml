@@ -1,0 +1,8 @@
+﻿<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+    <string name="apiBase">http://localhost:5065</string>
+    <string name="token">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI0MTRmMGZiZS02YzIwLTQ5OGItYjA5OC0wNmIxNDdkNjc2YTUiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjEiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiQWRtaW5pc3RyYWRvciBSdWJybyBOZWdybyIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6ImFkbWluQHBhcXVldGFzdHJlYW1pbmcuY29tIiwiZXhwIjoxNzgwMDE0MjA4LCJpc3MiOiJTdHJlYW1pbmdBUEkiLCJhdWQiOiJTdHJlYW1pbmdBUEkuQ2xpZW50In0.I8om0G96sjqpNnfJl-g7v-myWZD4XL50a04OeEc85q4</string>
+    <int name="usuarioId" value="1" />
+    <string name="usuarioNome">Administrador Rubro Negro</string>
+    <string name="usuarioEmail">admin@paquetastreaming.com</string>
+</map>
