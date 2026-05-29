@@ -2,7 +2,6 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using ContentCreatorApp.Models;
-using Microsoft.AspNetCore.Components.Forms;
 
 namespace ContentCreatorApp.Services;
 
@@ -53,7 +52,7 @@ public sealed class StreamingApiClient(HttpClient httpClient)
         string baseUrl,
         string token,
         ConteudoCreateRequest request,
-        IBrowserFile? arquivo)
+        MediaUpload? arquivo)
     {
         using var content = new MultipartFormDataContent
         {
@@ -64,10 +63,10 @@ public sealed class StreamingApiClient(HttpClient httpClient)
 
         if (arquivo is not null)
         {
-            var fileContent = new StreamContent(arquivo.OpenReadStream(200 * 1024 * 1024));
+            var fileContent = new StreamContent(await arquivo.OpenReadAsync());
             fileContent.Headers.ContentType = new MediaTypeHeaderValue(
                 string.IsNullOrWhiteSpace(arquivo.ContentType) ? "application/octet-stream" : arquivo.ContentType);
-            content.Add(fileContent, "arquivo", arquivo.Name);
+            content.Add(fileContent, "arquivo", arquivo.FileName);
         }
 
         using var message = new HttpRequestMessage(HttpMethod.Post, BuildUri(baseUrl, "/api/conteudos"))
@@ -184,4 +183,13 @@ public sealed class StreamingApiClient(HttpClient httpClient)
 public sealed class StreamingApiException(string message, int statusCode) : Exception(message)
 {
     public int StatusCode { get; } = statusCode;
+}
+
+public sealed class MediaUpload(string fileName, string contentType, Func<Task<Stream>> openReadAsync)
+{
+    public string FileName { get; } = fileName;
+
+    public string ContentType { get; } = contentType;
+
+    public Task<Stream> OpenReadAsync() => openReadAsync();
 }

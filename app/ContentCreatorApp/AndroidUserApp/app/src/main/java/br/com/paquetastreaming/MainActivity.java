@@ -388,7 +388,7 @@ public class MainActivity extends Activity {
         if (count == 0) {
             LinearLayout empty = panel();
             empty.addView(sectionTitle("Nada por aqui ainda"));
-            empty.addView(text("Tente outro filtro ou publique conteudos pelo painel web.", MUTED, 15));
+            empty.addView(text("Tente outro filtro ou publique conteudos pela interface .NET MAUI.", MUTED, 15));
             list.addView(empty);
         }
     }
@@ -478,7 +478,7 @@ public class MainActivity extends Activity {
         if (count == 0) {
             LinearLayout empty = panel();
             empty.addView(sectionTitle("Nenhuma playlist ainda"));
-            empty.addView(text("Crie playlists pelo painel web e elas aparecem aqui.", MUTED, 15));
+            empty.addView(text("Crie playlists pela interface .NET MAUI e elas aparecem aqui.", MUTED, 15));
             body.addView(empty);
         }
     }
